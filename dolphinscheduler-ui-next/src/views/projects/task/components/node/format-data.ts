@@ -300,6 +300,12 @@ export function formatParams(data: INodeData): {
     taskParams.type = data.type
     taskParams.jobFlowDefineJson = data.jobFlowDefineJson
   }
+  if (data.taskType === 'K8S') {
+    taskParams.namespace = data.namespace
+    taskParams.minCpuCores = data.minCpuCores
+    taskParams.minMemorySpace = data.minMemorySpace
+    taskParams.image = data.image
+  }
   if (data.taskType === 'PIGEON') {
     taskParams.targetJobName = data.targetJobName
   }
@@ -494,6 +500,22 @@ export function formatModel(data: ITaskData) {
     params.executorMemory = data.executorMemory
     params.numExecutors = data.numExecutors
     params.others = data.others
+  }
+
+  if (data.taskParams?.namespace) {
+    params.namespace = data.taskParams.namespace
+  }
+
+  if (data.taskParams?.minCpuCores) {
+    params.minCpuCores = data.taskParams.minCpuCores
+  }
+
+  if (data.taskParams?.minMemorySpace) {
+    params.minMemorySpace = data.taskParams.minMemorySpace
+  }
+
+  if (data.taskParams?.image) {
+    params.image = data.taskParams.image
   }
 
   if (data.taskParams?.jobFlowDefineJson) {
