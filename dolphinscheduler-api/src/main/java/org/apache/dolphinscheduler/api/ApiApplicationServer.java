@@ -17,6 +17,8 @@
 
 package org.apache.dolphinscheduler.api;
 
+import org.apache.curator.test.TestingServer;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -27,7 +29,9 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("org.apache.dolphinscheduler")
 public class ApiApplicationServer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  throws Exception {
+//        final TestingServer server = new TestingServer(true);
+//        System.setProperty("registry.zookeeper.connect-string", server.getConnectString());
         SpringApplication.run(ApiApplicationServer.class);
     }
 

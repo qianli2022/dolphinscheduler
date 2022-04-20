@@ -41,11 +41,16 @@ spring:
       max-request-size: 1024MB
   messages:
     basename: i18n/messages
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://127.0.0.1:5432/dolphinscheduler
+#    username: root
+#    password: root
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/dolphinscheduler
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://tidb-lab.webex.com:4000/ds_3?useUnicode=true&characterEncoding=UTF-8
     username: root
-    password: root
+    password: Pda@1234
     hikari:
       connection-test-query: select 1
       minimum-idle: 5
