@@ -527,6 +527,8 @@ const project = {
       '目前没有任何工作流，请先创建工作流，再访问该页面'
   },
   task: {
+    cancel_full_screen: '取消全屏',
+    enter_full_screen: '全屏',
     current_task_settings: '当前任务设置',
     online: '已上线',
     offline: '已下线',
@@ -618,6 +620,7 @@ const project = {
     view_log: '查看日志',
     enter_this_child_node: '进入该子节点',
     name: '节点名称',
+    task_name: '任务名称',
     name_tips: '请输入名称(必填)',
     task_type: '任务类型',
     task_type_tips: '请选择任务类型(必选)',
@@ -1029,8 +1032,10 @@ const security = {
     udf_resource: 'UDF资源',
     datasource: '数据源',
     udf: 'UDF函数',
+    namespace: '命名空间',
     authorize_project: '项目授权',
     authorize_resource: '资源授权',
+    authorize_namespace: '命名空间授权',
     authorize_datasource: '数据源授权',
     authorize_udf: 'UDF函数授权',
     username: '用户名',
