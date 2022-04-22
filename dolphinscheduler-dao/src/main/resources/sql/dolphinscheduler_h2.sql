@@ -1956,3 +1956,38 @@ CREATE TABLE t_ds_alert_send_status
     UNIQUE KEY alert_send_status_unique (alert_id,alert_plugin_instance_id)
 );
 
+
+--
+-- Table structure for table t_ds_cluster
+--
+DROP TABLE IF EXISTS t_ds_cluster CASCADE;
+CREATE TABLE t_ds_cluster
+(
+    id          int       NOT NULL AUTO_INCREMENT,
+    code        bigint(20) NOT NULL,
+    name        varchar(100)       DEFAULT NULL,
+    config      text               DEFAULT NULL,
+    description text,
+    operator    int                DEFAULT NULL,
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY cluster_name_unique (name),
+    UNIQUE KEY cluster_code_unique (code)
+);
+
+--
+-- Table structure for table t_ds_cluster_process_definition_relation
+--
+DROP TABLE IF EXISTS t_ds_cluster_process_definition_relation CASCADE;
+CREATE TABLE t_ds_cluster_process_definition_relation
+(
+    id               int          NOT NULL AUTO_INCREMENT,
+    cluster_code bigint(20) NOT NULL,
+    process_definition     varchar(255) NOT NULL,
+    operator         int                   DEFAULT NULL,
+    create_time      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY cluster_process_definition_unique (cluster_code,process_definition)
+);

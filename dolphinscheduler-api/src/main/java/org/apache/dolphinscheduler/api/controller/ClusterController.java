@@ -17,16 +17,16 @@
 
 package org.apache.dolphinscheduler.api.controller;
 
-import static org.apache.dolphinscheduler.api.enums.Status.CREATE_ENVIRONMENT_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.DELETE_ENVIRONMENT_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.QUERY_ENVIRONMENT_BY_CODE_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.QUERY_ENVIRONMENT_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_ENVIRONMENT_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.VERIFY_ENVIRONMENT_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.CREATE_CLUSTER_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.DELETE_CLUSTER_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.QUERY_CLUSTER_BY_CODE_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.QUERY_CLUSTER_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_CLUSTER_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.VERIFY_CLUSTER_ERROR;
 
 import org.apache.dolphinscheduler.api.aspect.AccessLogAnnotation;
 import org.apache.dolphinscheduler.api.exceptions.ApiException;
-import org.apache.dolphinscheduler.api.service.EnvironmentService;
+import org.apache.dolphinscheduler.api.service.ClusterService;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.utils.ParameterUtils;
@@ -51,109 +51,109 @@ import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * environment controller
+ * cluster controller
  * todo 这是新增的 集群环境
  */
-@Api(tags = "ENVIRONMENT_TAG")
+@Api(tags = "CLUSTER_TAG")
 @RestController
-@RequestMapping("environment")
+@RequestMapping("cluster")
 public class ClusterController extends BaseController {
 
     @Autowired
-    private EnvironmentService environmentService;
+    private ClusterService clusterService;
 
     /**
-     * create environment
+     * create cluster
      *
      * @param loginUser   login user
-     * @param name environment name
+     * @param name cluster name
      * @param config config
      * @param description description
      * @return returns an error if it exists
      */
-    @ApiOperation(value = "createEnvironment", notes = "CREATE_ENVIRONMENT_NOTES")
+    @ApiOperation(value = "createCluster", notes = "CREATE_CLUSTER_NOTES")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "name", value = "ENVIRONMENT_NAME", required = true, dataType = "String"),
+        @ApiImplicitParam(name = "name", value = "CLUSTER_NAME", required = true, dataType = "String"),
         @ApiImplicitParam(name = "config", value = "CONFIG", required = true, dataType = "String"),
-        @ApiImplicitParam(name = "description", value = "ENVIRONMENT_DESC", dataType = "String"),
-        @ApiImplicitParam(name = "workerGroups", value = "WORKER_GROUP_LIST", dataType = "String")
+        @ApiImplicitParam(name = "description", value = "CLUSTER_DESC", dataType = "String"),
+        @ApiImplicitParam(name = "processDefinition", value = "PROCESS_DEFINITION_LIST", dataType = "String")
     })
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiException(CREATE_ENVIRONMENT_ERROR)
+    @ApiException(CREATE_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result createProject(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                 @RequestParam("name") String name,
                                 @RequestParam("config") String config,
                                 @RequestParam(value = "description", required = false) String description,
-                                @RequestParam(value = "workerGroups", required = false) String workerGroups) {
+                                @RequestParam(value = "processDefinitions", required = false) String processDefinitions) {
 
-        Map<String, Object> result = environmentService.createEnvironment(loginUser, name, config, description, workerGroups);
+        Map<String, Object> result = clusterService.createCluster(loginUser, name, config, description, processDefinitions);
         return returnDataList(result);
     }
 
     /**
-     * update environment
+     * update cluster
      *
      * @param loginUser   login user
-     * @param code   environment code
-     * @param name environment name
-     * @param config environment config
+     * @param code   cluster code
+     * @param name cluster name
+     * @param config cluster config
      * @param description description
      * @return update result code
      */
-    @ApiOperation(value = "updateEnvironment", notes = "UPDATE_ENVIRONMENT_NOTES")
+    @ApiOperation(value = "updateCluster", notes = "UPDATE_CLUSTER_NOTES")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "code", value = "ENVIRONMENT_CODE", required = true, dataType = "Long", example = "100"),
-        @ApiImplicitParam(name = "name", value = "ENVIRONMENT_NAME", required = true, dataType = "String"),
-        @ApiImplicitParam(name = "config", value = "ENVIRONMENT_CONFIG", required = true, dataType = "String"),
-        @ApiImplicitParam(name = "description", value = "ENVIRONMENT_DESC", dataType = "String"),
-        @ApiImplicitParam(name = "workerGroups", value = "WORKER_GROUP_LIST", dataType = "String")
+        @ApiImplicitParam(name = "code", value = "CLUSTER_CODE", required = true, dataType = "Long", example = "100"),
+        @ApiImplicitParam(name = "name", value = "CLUSTER_NAME", required = true, dataType = "String"),
+        @ApiImplicitParam(name = "config", value = "CLUSTER_CONFIG", required = true, dataType = "String"),
+        @ApiImplicitParam(name = "description", value = "CLUSTER_DESC", dataType = "String"),
+        @ApiImplicitParam(name = "processDefinitions", value = "PROCESS_DEFINITION_LIST", dataType = "String")
     })
     @PostMapping(value = "/update")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(UPDATE_ENVIRONMENT_ERROR)
+    @ApiException(UPDATE_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result updateEnvironment(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+    public Result updateCluster(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                     @RequestParam("code") Long code,
                                     @RequestParam("name") String name,
                                     @RequestParam("config") String config,
                                     @RequestParam(value = "description", required = false) String description,
-                                    @RequestParam(value = "workerGroups", required = false) String workerGroups) {
-        Map<String, Object> result = environmentService.updateEnvironmentByCode(loginUser, code, name, config, description, workerGroups);
+                                    @RequestParam(value = "processDefinitions", required = false) String processDefinitions) {
+        Map<String, Object> result = clusterService.updateClusterByCode(loginUser, code, name, config, description, processDefinitions);
         return returnDataList(result);
     }
 
     /**
-     * query environment details by code
+     * query cluster details by code
      *
-     * @param environmentCode environment code
-     * @return environment detail information
+     * @param clusterCode cluster code
+     * @return cluster detail information
      */
-    @ApiOperation(value = "queryEnvironmentByCode", notes = "QUERY_ENVIRONMENT_BY_CODE_NOTES")
+    @ApiOperation(value = "queryClusterByCode", notes = "QUERY_CLUSTER_BY_CODE_NOTES")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "environmentCode", value = "ENVIRONMENT_CODE", required = true, dataType = "Long", example = "100")
+        @ApiImplicitParam(name = "clusterCode", value = "CLUSTER_CODE", required = true, dataType = "Long", example = "100")
     })
     @GetMapping(value = "/query-by-code")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(QUERY_ENVIRONMENT_BY_CODE_ERROR)
+    @ApiException(QUERY_CLUSTER_BY_CODE_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryEnvironmentByCode(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                                   @RequestParam("environmentCode") Long environmentCode) {
+    public Result queryClusterByCode(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                   @RequestParam("clusterCode") Long clusterCode) {
 
-        Map<String, Object> result = environmentService.queryEnvironmentByCode(environmentCode);
+        Map<String, Object> result = clusterService.queryClusterByCode(clusterCode);
         return returnDataList(result);
     }
 
     /**
-     * query environment list paging
+     * query cluster list paging
      *
      * @param searchVal search value
      * @param pageSize  page size
      * @param pageNo    page number
-     * @return environment list which the login user have permission to see
+     * @return cluster list which the login user have permission to see
      */
-    @ApiOperation(value = "queryEnvironmentListPaging", notes = "QUERY_ENVIRONMENT_LIST_PAGING_NOTES")
+    @ApiOperation(value = "queryClusterListPaging", notes = "QUERY_CLUSTER_LIST_PAGING_NOTES")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "searchVal", value = "SEARCH_VAL", dataType = "String"),
         @ApiImplicitParam(name = "pageSize", value = "PAGE_SIZE", required = true, dataType = "Int", example = "20"),
@@ -161,9 +161,9 @@ public class ClusterController extends BaseController {
     })
     @GetMapping(value = "/list-paging")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(QUERY_ENVIRONMENT_ERROR)
+    @ApiException(QUERY_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryEnvironmentListPaging(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+    public Result queryClusterListPaging(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                          @RequestParam(value = "searchVal", required = false) String searchVal,
                                          @RequestParam("pageSize") Integer pageSize,
                                          @RequestParam("pageNo") Integer pageNo
@@ -174,68 +174,68 @@ public class ClusterController extends BaseController {
             return result;
         }
         searchVal = ParameterUtils.handleEscapes(searchVal);
-        result = environmentService.queryEnvironmentListPaging(pageNo, pageSize, searchVal);
+        result = clusterService.queryClusterListPaging(pageNo, pageSize, searchVal);
         return result;
     }
 
     /**
-     * delete environment by code
+     * delete cluster by code
      *
      * @param loginUser login user
-     * @param environmentCode environment code
+     * @param clusterCode cluster code
      * @return delete result code
      */
-    @ApiOperation(value = "deleteEnvironmentByCode", notes = "DELETE_ENVIRONMENT_BY_CODE_NOTES")
+    @ApiOperation(value = "deleteClusterByCode", notes = "DELETE_CLUSTER_BY_CODE_NOTES")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "environmentCode", value = "ENVIRONMENT_CODE", required = true, dataType = "Long", example = "100")
+        @ApiImplicitParam(name = "clusterCode", value = "CLUSTER_CODE", required = true, dataType = "Long", example = "100")
     })
     @PostMapping(value = "/delete")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(DELETE_ENVIRONMENT_ERROR)
+    @ApiException(DELETE_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result deleteEnvironment(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                                @RequestParam("environmentCode") Long environmentCode
+    public Result deleteCluster(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                @RequestParam("clusterCode") Long clusterCode
     ) {
 
-        Map<String, Object> result = environmentService.deleteEnvironmentByCode(loginUser, environmentCode);
+        Map<String, Object> result = clusterService.deleteClusterByCode(loginUser, clusterCode);
         return returnDataList(result);
     }
 
     /**
-     * query all environment list
+     * query all cluster list
      *
      * @param loginUser login user
-     * @return all environment list
+     * @return all cluster list
      */
-    @ApiOperation(value = "queryAllEnvironmentList", notes = "QUERY_ALL_ENVIRONMENT_LIST_NOTES")
-    @GetMapping(value = "/query-environment-list")
+    @ApiOperation(value = "queryAllClusterList", notes = "QUERY_ALL_CLUSTER_LIST_NOTES")
+    @GetMapping(value = "/query-cluster-list")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(QUERY_ENVIRONMENT_ERROR)
+    @ApiException(QUERY_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryAllEnvironmentList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
-        Map<String, Object> result = environmentService.queryAllEnvironmentList();
+    public Result queryAllClusterList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
+        Map<String, Object> result = clusterService.queryAllClusterList();
         return returnDataList(result);
     }
 
     /**
-     * verify environment and environment name
+     * verify cluster and cluster name
      *
      * @param loginUser login user
-     * @param environmentName environment name
-     * @return true if the environment name not exists, otherwise return false
+     * @param clusterName cluster name
+     * @return true if the cluster name not exists, otherwise return false
      */
-    @ApiOperation(value = "verifyEnvironment", notes = "VERIFY_ENVIRONMENT_NOTES")
+    @ApiOperation(value = "verifyCluster", notes = "VERIFY_CLUSTER_NOTES")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "environmentName", value = "ENVIRONMENT_NAME", required = true, dataType = "String")
+        @ApiImplicitParam(name = "clusterName", value = "CLUSTER_NAME", required = true, dataType = "String")
     })
-    @PostMapping(value = "/verify-environment")
+    @PostMapping(value = "/verify-cluster")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(VERIFY_ENVIRONMENT_ERROR)
+    @ApiException(VERIFY_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result verifyEnvironment(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                              @RequestParam(value = "environmentName") String environmentName
+    public Result verifyCluster(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                              @RequestParam(value = "clusterName") String clusterName
     ) {
-        Map<String, Object> result = environmentService.verifyEnvironment(environmentName);
+        Map<String, Object> result = clusterService.verifyCluster(clusterName);
         return returnDataList(result);
     }
 }

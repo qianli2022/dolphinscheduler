@@ -204,6 +204,31 @@ EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_relation
     CONSTRAINT namespace_user_unique UNIQUE (user_id,namespace_id)
 )';
 
+EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster" (
+    id serial NOT NULL,
+    code bigint NOT NULL,
+    name varchar(100) DEFAULT NULL,
+    config text DEFAULT NULL,
+    description text,
+    operator int DEFAULT NULL,
+    create_time timestamp DEFAULT NULL,
+    update_time timestamp DEFAULT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT cluster_name_unique UNIQUE (name),
+    CONSTRAINT cluster_code_unique UNIQUE (code)
+)';
+
+EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster_process_definition_relation" (
+    id serial NOT NULL,
+    cluster_code bigint NOT NULL,
+    process_definition varchar(255) NOT NULL,
+    operator int DEFAULT NULL,
+    create_time timestamp DEFAULT NULL,
+    update_time timestamp DEFAULT NULL,
+    PRIMARY KEY (id) ,
+    CONSTRAINT cluster_process_definition_unique UNIQUE (cluster_code,process_definition)
+)';
+
 return 'Success!';
 exception when others then
 		---Raise EXCEPTION '(%)',SQLERRM;

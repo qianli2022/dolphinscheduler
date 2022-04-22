@@ -1931,3 +1931,39 @@ CREATE TABLE t_ds_alert_send_status (
     PRIMARY KEY (id),
     CONSTRAINT alert_send_status_unique UNIQUE (alert_id,alert_plugin_instance_id)
 );
+
+
+--
+-- Table structure for table t_ds_cluster
+--
+
+DROP TABLE IF EXISTS t_ds_cluster;
+CREATE TABLE t_ds_cluster (
+    id serial NOT NULL,
+    code bigint NOT NULL,
+    name varchar(100) DEFAULT NULL,
+    config text DEFAULT NULL,
+    description text,
+    operator int DEFAULT NULL,
+    create_time timestamp DEFAULT NULL,
+    update_time timestamp DEFAULT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT cluster_name_unique UNIQUE (name),
+    CONSTRAINT cluster_code_unique UNIQUE (code)
+);
+
+--
+-- Table structure for table t_ds_cluster_process_definition_relation
+--
+
+DROP TABLE IF EXISTS t_ds_cluster_process_definition_relation;
+CREATE TABLE t_ds_cluster_process_definition_relation (
+    id serial NOT NULL,
+    cluster_code bigint NOT NULL,
+    process_definition varchar(255) NOT NULL,
+    operator int DEFAULT NULL,
+    create_time timestamp DEFAULT NULL,
+    update_time timestamp DEFAULT NULL,
+    PRIMARY KEY (id) ,
+    CONSTRAINT cluster_process_definition_unique UNIQUE (cluster_code,process_definition)
+);
