@@ -1881,16 +1881,16 @@ CREATE TABLE t_ds_audit_log
 );
 
 
-DROP TABLE IF EXISTS t_ds_k8s;
-CREATE TABLE t_ds_k8s
-(
-    id           int(11) NOT NULL AUTO_INCREMENT ,
-    k8s_name     varchar(100) DEFAULT NULL ,
-    k8s_config   text DEFAULT NULL,
-    create_time  datetime DEFAULT NULL ,
-    update_time  datetime DEFAULT NULL ,
-    PRIMARY KEY (id)
-);
+-- DROP TABLE IF EXISTS t_ds_k8s;
+-- CREATE TABLE t_ds_k8s
+-- (
+--     id           int(11) NOT NULL AUTO_INCREMENT ,
+--     k8s_name     varchar(100) DEFAULT NULL ,
+--     k8s_config   text DEFAULT NULL,
+--     create_time  datetime DEFAULT NULL ,
+--     update_time  datetime DEFAULT NULL ,
+--     PRIMARY KEY (id)
+-- );
 
 DROP TABLE IF EXISTS t_ds_k8s_namespace;
 CREATE TABLE t_ds_k8s_namespace (
@@ -1975,6 +1975,12 @@ CREATE TABLE t_ds_cluster
     UNIQUE KEY cluster_name_unique (name),
     UNIQUE KEY cluster_code_unique (code)
 );
+
+--
+-- will remove t_ds_k8s
+--
+DROP TABLE IF EXISTS t_ds_k8s;
+
 
 --
 -- Table structure for table t_ds_cluster_process_definition_relation

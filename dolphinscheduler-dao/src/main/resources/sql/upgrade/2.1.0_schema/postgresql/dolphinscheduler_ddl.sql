@@ -218,6 +218,8 @@ EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster"
     CONSTRAINT cluster_code_unique UNIQUE (code)
 )';
 
+EXECUTE 'DROP TABLE IF EXISTS t_ds_k8s';
+
 EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster_process_definition_relation" (
     id serial NOT NULL,
     cluster_code bigint NOT NULL,

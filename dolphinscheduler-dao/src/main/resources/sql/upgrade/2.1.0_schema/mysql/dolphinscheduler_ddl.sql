@@ -245,6 +245,8 @@ CREATE TABLE `t_ds_cluster` (
   UNIQUE KEY `cluster_code_unique` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `t_ds_k8s`;
+
 -- ----------------------------
 -- Table structure for t_ds_cluster_process_definition_relation
 -- ----------------------------

@@ -17,10 +17,14 @@
 
 package org.apache.dolphinscheduler.service.k8s;
 
+import org.apache.dolphinscheduler.common.utils.ClusterConfUtils;
+import org.apache.dolphinscheduler.dao.entity.Cluster;
 import org.apache.dolphinscheduler.dao.entity.K8s;
+import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.K8sMapper;
 import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +57,8 @@ public class K8sManager {
     @Autowired
     private K8sMapper k8sMapper;
 
+    private ClusterMapper clusterMapper;
+
     public KubernetesClient getK8sClient(String k8sName) {
         if (null == k8sName) {
             return null;
@@ -62,13 +68,15 @@ public class K8sManager {
 
     @EventListener
     public void buildApiClientAll(ApplicationReadyEvent readyEvent) throws RemotingException {
-        QueryWrapper<K8s> nodeWrapper = new QueryWrapper<>();
-        List<K8s> k8sList = k8sMapper.selectList(nodeWrapper);
-
-        if (k8sList != null) {
-            for (K8s k8s : k8sList) {
-                DefaultKubernetesClient client = getClient(k8s.getK8sConfig());
-                clientMap.put(k8s.getK8sName(), client);
+        List<Cluster> clusterList = clusterMapper.selectList(null);
+        if (clusterList != null && clusterList.size() > 0) {
+            for(Cluster item :clusterList ) {
+                String k8sConfig = ClusterConfUtils.getK8sConfig(item.getConfig());
+                if(k8sConfig!=null)
+                {
+                    DefaultKubernetesClient client = getClient(k8sConfig);
+                    clientMap.put(item.getName(), client);
+                }
             }
         }
     }
@@ -81,5 +89,17 @@ public class K8sManager {
             logger.error("fail to get k8s ApiClient", e);
             throw new RemotingException("fail to get k8s ApiClient:" + e.getMessage());
         }
+    }
+
+    private List<String> getK8sList() {
+        List<Cluster> clusterList = clusterMapper.selectList(null);
+        List<String> k8sConfigs = new ArrayList<>();
+        if (clusterList != null && clusterList.size() > 0) {
+            for(Cluster item :clusterList ) {
+                String k8sConfig = ClusterConfUtils.getK8sConfig(item.getConfig());
+                k8sConfigs.add(k8sConfig);
+            }
+        }
+        return k8sConfigs;
     }
 }

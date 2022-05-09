@@ -17,32 +17,22 @@
 
 package org.apache.dolphinscheduler.common.utils;
 
-import org.apache.dolphinscheduler.spi.utils.StringUtils;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * cluster conf will include all env type, but only k8s config now
+ * k8s cluster config test
  */
-public class ClusterConfUtils {
+public class ClusterConfUtilsTest {
 
-    private static final String K8S_CONFIG = "k8s";
-
-    /**
-     * get k8s
-     *
-     * @param config cluster config in db
-     * @return
-     */
-    public static String getK8sConfig(String config) {
-        if (StringUtils.isEmpty(config)) {
-            return null;
-        }
-        ObjectNode conf = JSONUtils.parseObject(config);
-        if (conf == null) {
-            return null;
-        }
-        return conf.get(K8S_CONFIG).asText();
+    @Test
+    public void getK8s() {
+        String config = getConfig();
+        String k8sConfig = ClusterConfUtils.getK8sConfig(config);
+        Assert.assertNotNull(k8sConfig);
     }
 
+    private String getConfig() {
+        return "{\"k8s\":\"k8s config yaml\"}";
+    }
 }
