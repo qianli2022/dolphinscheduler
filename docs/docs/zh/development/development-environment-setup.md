@@ -53,11 +53,11 @@ DolphinScheduler 开发环境配置有两个方式，分别是standalone模式�
 
 ```shell
 cd dolphinscheduler-ui
-npm install
-npm run start
+pnpm install
+pnpm run dev
 ```
 
-截止目前，前后端已成功运行起来，浏览器访问[http://localhost:8888](http://localhost:8888)，并使用默认账户密码 **admin/dolphinscheduler123** 即可完成登录
+截止目前，前后端已成功运行起来，浏览器访问[http://localhost:3000](http://localhost:3000)，并使用默认账户密码 **admin/dolphinscheduler123** 即可完成登录
 
 ## DolphinScheduler 普通开发模式
 
@@ -148,8 +148,8 @@ DolphinScheduler 的元数据存储在关系型数据库中，目前支持的关
 
 ```shell
 cd dolphinscheduler-ui
-npm install
-npm run start
+pnpm install
+pnpm run dev
 ```
 
-截止目前，前后端已成功运行起来，浏览器访问[http://localhost:8888](http://localhost:8888)，并使用默认账户密码 **admin/dolphinscheduler123** 即可完成登录
+截止目前，前后端已成功运行起来，浏览器访问[http://localhost:3000](http://localhost:3000)，并使用默认账户密码 **admin/dolphinscheduler123** 即可完成登录

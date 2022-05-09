@@ -166,6 +166,10 @@ export default {
                                 title: 'Amazon EMR',
                                 link: '/en-us/docs/dev/user_doc/guide/task/emr.html',
                             },
+                            {
+                                title: 'Apache Zeppelin',
+                                link: '/en-us/docs/dev/user_doc/guide/task/zeppelin.html',
+                            },
                         ],
                     },
                     {
@@ -241,11 +245,40 @@ export default {
                                 title: 'Enterprise Webexteams',
                                 link: '/en-us/docs/dev/user_doc/guide/alert/enterprise-webexteams.html',
                             },
+                            {
+                                title: 'Script',
+                                link: '/en-us/docs/dev/user_doc/guide/alert/script.html',
+                            },
+                            {
+                                title: 'Http',
+                                link: '/en-us/docs/dev/user_doc/guide/alert/http.html',
+                            },
                         ],
                     },
                     {
+                        title: 'Data Quality',
+                        link: '/en-us/docs/dev/user_doc/guide/data-quality.html',
+                    },
+                    {
                         title: 'Resource',
-                        link: '/en-us/docs/dev/user_doc/guide/resource.html',
+                        children: [
+                            {
+                                title: 'Configuration',
+                                link: '/en-us/docs/dev/user_doc/guide/resource/configuration.html'
+                            },
+                            {
+                                title: 'File Manage',
+                                link: '/en-us/docs/dev/user_doc/guide/resource/file-manage.html'
+                            },
+                            {
+                                title: 'UDF Manage',
+                                link: '/en-us/docs/dev/user_doc/guide/resource/udf-manage.html'
+                            },
+                            {
+                                title: 'Task Group Manage',
+                                link: '/en-us/docs/dev/user_doc/guide/resource/task-manage.html'
+                            },
+                        ],
                     },
                     {
                         title: 'Monitor',
@@ -480,6 +513,10 @@ export default {
                                 title: 'Amazon EMR',
                                 link: '/zh-cn/docs/dev/user_doc/guide/task/emr.html',
                             },
+                            {
+                                title: 'Apache Zeppelin',
+                                link: '/zh-cn/docs/dev/user_doc/guide/task/zeppelin.html',
+                            },
                         ],
                     },
                     {
@@ -555,11 +592,40 @@ export default {
                                 title: 'Webexteams',
                                 link: '/zh-cn/docs/dev/user_doc/guide/alert/enterprise-webexteams.html',
                             },
+                            {
+                                title: '脚本告警',
+                                link: '/zh-cn/docs/dev/user_doc/guide/alert/script.html',
+                            },
+                            {
+                                title: 'Http告警',
+                                link: '/zh-cn/docs/dev/user_doc/guide/alert/http.html',
+                            },
                         ],
                     },
                     {
+                        title: '数据质量',
+                        link: '/zh-cn/docs/dev/user_doc/guide/data-quality.html',
+                    },
+                    {
                         title: '资源中心',
-                        link: '/zh-cn/docs/dev/user_doc/guide/resource.html',
+                        children: [
+                            {
+                                title: '配置详情',
+                                link: '/zh-cn/docs/dev/user_doc/guide/resource/configuration.html'
+                            },
+                            {
+                                title: '文件管理',
+                                link: '/zh-cn/docs/dev/user_doc/guide/resource/file-manage.html'
+                            },
+                            {
+                                title: 'UDF 管理',
+                                link: '/zh-cn/docs/dev/user_doc/guide/resource/udf-manage.html'
+                            },
+                            {
+                                title: '任务组管理',
+                                link: '/zh-cn/docs/dev/user_doc/guide/resource/task-manage.html'
+                            },
+                        ],
                     },
                     {
                         title: '监控中心',

@@ -35,8 +35,9 @@ There are two ways to configure the DolphinScheduler development environment, st
 
 ## DolphinScheduler Standalone Quick Start
 
-> **_Note:_** Standalone server only for development and debugging, cause it use H2 Database, Zookeeper Testing Server which may not stable in production
-> Standalone is only supported in DolphinScheduler 1.3.9 and later versions
+> **_Note:_** Use standalone server only for development and debugging, because it uses H2 Database as default database and Zookeeper Testing Server which may not be stable in production.
+> Standalone is only supported in DolphinScheduler 1.3.9 and later versions.
+> Standalone server is able to connect to external databases like mysql and postgresql, see [Standalone Deployment](https://dolphinscheduler.apache.org/en-us/docs/dev/user_doc/guide/installation/standalone.html) for instructions.
 
 ### Git Branch Choose
 
@@ -55,11 +56,11 @@ Install frontend dependencies and run it
 
 ```shell
 cd dolphinscheduler-ui
-npm install
-npm run start
+pnpm install
+pnpm run dev
 ```
 
-The browser access address http://localhost:12345/dolphinscheduler can login DolphinScheduler UI. The default username and password are **admin/dolphinscheduler123**
+The browser access address [http://localhost:3000](http://localhost:3000) can login DolphinScheduler UI. The default username and password are **admin/dolphinscheduler123**
 
 ## DolphinScheduler Normal Mode
 
@@ -152,8 +153,8 @@ Install frontend dependencies and run it
 
 ```shell
 cd dolphinscheduler-ui
-npm install
-npm run start
+pnpm install
+pnpm run dev
 ```
 
-The browser access address http://localhost:12345/dolphinscheduler can login DolphinScheduler UI. The default username and password are **admin/dolphinscheduler123**
+The browser access address [http://localhost:3000](http://localhost:3000) can login DolphinScheduler UI. The default username and password are **admin/dolphinscheduler123**

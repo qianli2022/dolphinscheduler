@@ -54,13 +54,13 @@ This example is a common introductory type of MapReduce application, which used 
 
 #### Configure the MapReduce Environment in DolphinScheduler
 
-If you are using the MapReduce task type in a production environment, it is necessary to configure the required environment first. The following is the configuration file: `/dolphinscheduler/conf/env/dolphinscheduler_env.sh`.
+If you are using the MapReduce task type in a production environment, it is necessary to configure the required environment first. The following is the configuration file: `bin/env/dolphinscheduler_env.sh`.
 
 ![mr_configure](/img/tasks/demo/mr_task01.png)
 
 #### Upload the Main Package
 
-When using the MapReduce task node, you need to use the Resource Centre to upload the jar package for the execution. Refer to the [resource centre](../resource.md).
+When using the MapReduce task node, you need to use the Resource Centre to upload the jar package for the execution. Refer to the [resource centre](../resource/configuration.md).
 
 After finish the Resource Centre configuration, upload the required target files directly by dragging and dropping.
 
