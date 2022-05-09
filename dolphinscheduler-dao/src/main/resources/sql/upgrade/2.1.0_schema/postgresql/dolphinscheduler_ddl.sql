@@ -167,26 +167,26 @@ EXECUTE 'CREATE INDEX IF NOT EXISTS idx_task_definition_log_project_code ON ' ||
 EXECUTE 'DROP INDEX IF EXISTS "idx_task_instance_code_version"';
 EXECUTE 'CREATE INDEX IF NOT EXISTS idx_task_instance_code_version ON' || quote_ident(v_schema) ||'.t_ds_task_instance USING Btree("task_code","task_definition_version")';
 
-EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_k8s" (
-   id serial NOT NULL,
-   k8s_name    VARCHAR(100) DEFAULT NULL ,
-   k8s_config  text ,
-   create_time timestamp DEFAULT NULL ,
-   update_time timestamp DEFAULT NULL ,
-   PRIMARY KEY (id)
-)';
+-- EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_k8s" (
+--    id serial NOT NULL,
+--    k8s_name    VARCHAR(100) DEFAULT NULL ,
+--    k8s_config  text ,
+--    create_time timestamp DEFAULT NULL ,
+--    update_time timestamp DEFAULT NULL ,
+--    PRIMARY KEY (id)
+-- )';
 
 EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_k8s_namespace" (
    id serial NOT NULL,
    limits_memory      int DEFAULT NULL ,
    namespace          varchar(100) DEFAULT NULL ,
-   online_job_num     int DEFAULT NULL,
    user_id            int DEFAULT NULL,
    pod_replicas       int DEFAULT NULL,
    pod_request_cpu    NUMERIC(13,4) NULL,
    pod_request_memory int DEFAULT NULL,
    limits_cpu         NUMERIC(13,4) NULL,
-   k8s                varchar(100) DEFAULT NULL,
+   cluster_code       bigint NOT NULL,
+   cluster_name       varchar(100) DEFAULT NULL,
    create_time        timestamp DEFAULT NULL ,
    update_time        timestamp DEFAULT NULL ,
    PRIMARY KEY (id) ,
@@ -217,8 +217,6 @@ EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster"
     CONSTRAINT cluster_name_unique UNIQUE (name),
     CONSTRAINT cluster_code_unique UNIQUE (code)
 )';
-
-EXECUTE 'DROP TABLE IF EXISTS t_ds_k8s';
 
 EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_cluster_process_definition_relation" (
     id serial NOT NULL,

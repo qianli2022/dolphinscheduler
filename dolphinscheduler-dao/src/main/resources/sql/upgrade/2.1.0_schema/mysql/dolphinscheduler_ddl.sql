@@ -177,18 +177,18 @@ CREATE TABLE `t_ds_relation_rule_input_entry` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- ----------------------------
--- Table structure for t_ds_k8s
--- ----------------------------
-DROP TABLE IF EXISTS `t_ds_k8s`;
-CREATE TABLE `t_ds_k8s` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `k8s_name` varchar(100) DEFAULT NULL,
-  `k8s_config` text DEFAULT NULL,
-  `create_time` datetime DEFAULT NULL COMMENT 'create time',
-  `update_time` datetime DEFAULT NULL COMMENT 'update time',
-  PRIMARY KEY (`id`)
-) ENGINE= INNODB AUTO_INCREMENT= 1 DEFAULT CHARSET= utf8;
+-- -- ----------------------------
+-- -- Table structure for t_ds_k8s
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS `t_ds_k8s`;
+-- CREATE TABLE `t_ds_k8s` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `k8s_name` varchar(100) DEFAULT NULL,
+--   `k8s_config` text DEFAULT NULL,
+--   `create_time` datetime DEFAULT NULL COMMENT 'create time',
+--   `update_time` datetime DEFAULT NULL COMMENT 'update time',
+--   PRIMARY KEY (`id`)
+-- ) ENGINE= INNODB AUTO_INCREMENT= 1 DEFAULT CHARSET= utf8;
 
 -- ----------------------------
 -- Table structure for t_ds_k8s_namespace
@@ -198,13 +198,13 @@ CREATE TABLE `t_ds_k8s_namespace` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `limits_memory` int(11) DEFAULT NULL,
   `namespace` varchar(100) DEFAULT NULL,
-  `online_job_num` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `pod_replicas` int(11) DEFAULT NULL,
   `pod_request_cpu` decimal(14,3) DEFAULT NULL,
   `pod_request_memory` int(11) DEFAULT NULL,
   `limits_cpu` decimal(14,3) DEFAULT NULL,
-  `k8s` varchar(100) DEFAULT NULL,
+  `cluster_code` bigint(20) NOT NULL DEFAULT '0',
+  `cluster_name` varchar(100) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL COMMENT 'create time',
   `update_time` datetime DEFAULT NULL COMMENT 'update time',
   PRIMARY KEY (`id`),
@@ -244,8 +244,6 @@ CREATE TABLE `t_ds_cluster` (
   UNIQUE KEY `cluster_name_unique` (`name`),
   UNIQUE KEY `cluster_code_unique` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `t_ds_k8s`;
 
 -- ----------------------------
 -- Table structure for t_ds_cluster_process_definition_relation

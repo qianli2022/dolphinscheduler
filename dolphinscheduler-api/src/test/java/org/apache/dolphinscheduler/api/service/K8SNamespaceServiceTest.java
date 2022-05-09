@@ -73,7 +73,7 @@ public class K8SNamespaceServiceTest {
     @Before
     public void setUp() throws Exception {
         Mockito.when(k8sClientService.upsertNamespaceAndResourceToK8s(Mockito.any(K8sNamespace.class), Mockito.anyString())).thenReturn(null);
-        Mockito.when(k8sClientService.deleteNamespaceToK8s(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+        Mockito.when(k8sClientService.deleteNamespaceToK8s(Mockito.anyString(), Mockito.anyLong())).thenReturn(null);
     }
 
     @After
@@ -222,7 +222,7 @@ public class K8SNamespaceServiceTest {
     private K8sNamespace getNamespace() {
         K8sNamespace k8sNamespace = new K8sNamespace();
         k8sNamespace.setId(1);
-        k8sNamespace.setK8s(k8s);
+        k8sNamespace.setClusterName(k8s);
         k8sNamespace.setNamespace(namespace);
         return k8sNamespace;
     }

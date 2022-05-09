@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
@@ -145,18 +144,17 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
         Date now = new Date();
 
         k8sNamespaceObj.setNamespace(namespace);
-        k8sNamespaceObj.setK8s(k8s);
+        k8sNamespaceObj.setClusterName(k8s);
         k8sNamespaceObj.setUserId(loginUser.getId());
         k8sNamespaceObj.setLimitsCpu(limitsCpu);
         k8sNamespaceObj.setLimitsMemory(limitsMemory);
-        k8sNamespaceObj.setOnlineJobNum(0);
         k8sNamespaceObj.setPodReplicas(0);
         k8sNamespaceObj.setPodRequestCpu(0.0);
         k8sNamespaceObj.setPodRequestMemory(0);
         k8sNamespaceObj.setCreateTime(now);
         k8sNamespaceObj.setUpdateTime(now);
 
-        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getK8s())) {
+        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getClusterName())) {
             try {
                 String yamlStr = genDefaultResourceYaml(k8sNamespaceObj);
                 k8sClientService.upsertNamespaceAndResourceToK8s(k8sNamespaceObj, yamlStr);
@@ -210,7 +208,7 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
         k8sNamespaceObj.setLimitsMemory(limitsMemory);
         k8sNamespaceObj.setUpdateTime(now);
 
-        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getK8s())) {
+        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getClusterName())) {
             try {
                 String yamlStr = genDefaultResourceYaml(k8sNamespaceObj);
                 k8sClientService.upsertNamespaceAndResourceToK8s(k8sNamespaceObj, yamlStr);
@@ -275,8 +273,8 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
             putMsg(result, Status.K8S_NAMESPACE_NOT_EXIST, id);
             return result;
         }
-        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getK8s())) {
-            k8sClientService.deleteNamespaceToK8s(k8sNamespaceObj.getNamespace(), k8sNamespaceObj.getK8s());
+        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(k8sNamespaceObj.getClusterName())) {
+            k8sClientService.deleteNamespaceToK8s(k8sNamespaceObj.getNamespace(), k8sNamespaceObj.getClusterCode());
         }
         k8sNamespaceMapper.deleteById(id);
         putMsg(result, Status.SUCCESS);

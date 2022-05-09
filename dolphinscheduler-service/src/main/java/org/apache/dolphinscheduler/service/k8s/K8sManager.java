@@ -19,24 +19,16 @@ package org.apache.dolphinscheduler.service.k8s;
 
 import org.apache.dolphinscheduler.common.utils.ClusterConfUtils;
 import org.apache.dolphinscheduler.dao.entity.Cluster;
-import org.apache.dolphinscheduler.dao.entity.K8s;
 import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
-import org.apache.dolphinscheduler.dao.mapper.K8sMapper;
 import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -55,31 +47,54 @@ public class K8sManager {
     private static Map<String, KubernetesClient> clientMap = new Hashtable<>();
 
     @Autowired
-    private K8sMapper k8sMapper;
-
     private ClusterMapper clusterMapper;
 
-    public KubernetesClient getK8sClient(String k8sName) {
-        if (null == k8sName) {
+    public synchronized KubernetesClient getK8sClient(Long clusterCode) {
+        if (null == clusterCode) {
             return null;
         }
-        return clientMap.get(k8sName);
+        if (clientMap.containsKey(clusterCode)) {
+            return clientMap.get(clusterCode);
+        } else {
+            createK8sClient(clusterCode);
+        }
+        return clientMap.get(clusterCode);
     }
 
-    @EventListener
-    public void buildApiClientAll(ApplicationReadyEvent readyEvent) throws RemotingException {
-        List<Cluster> clusterList = clusterMapper.selectList(null);
-        if (clusterList != null && clusterList.size() > 0) {
-            for(Cluster item :clusterList ) {
-                String k8sConfig = ClusterConfUtils.getK8sConfig(item.getConfig());
-                if(k8sConfig!=null)
-                {
-                    DefaultKubernetesClient client = getClient(k8sConfig);
-                    clientMap.put(item.getName(), client);
-                }
+
+    private void createK8sClient(Long clusterCode) {
+        Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
+        if (cluster == null) {
+            return;
+        }
+
+        String k8sConfig = ClusterConfUtils.getK8sConfig(cluster.getConfig());
+        if (k8sConfig != null) {
+            DefaultKubernetesClient client = null;
+            try {
+                client = getClient(k8sConfig);
+                clientMap.put(cluster.getName(), client);
+            } catch (RemotingException e) {
+                logger.error("cluster code ={},fail to get k8s ApiClient:  {}", clusterCode, e.getMessage());
             }
         }
     }
+
+
+//    @EventListener
+//    public void buildApiClientAll(ApplicationReadyEvent readyEvent) throws RemotingException {
+//        List<Cluster> clusterList = clusterMapper.selectList(null);
+//        if (clusterList != null && clusterList.size() > 0) {
+//            for(Cluster item :clusterList ) {
+//                String k8sConfig = ClusterConfUtils.getK8sConfig(item.getConfig());
+//                if(k8sConfig!=null)
+//                {
+//                    DefaultKubernetesClient client = getClient(k8sConfig);
+//                    clientMap.put(item.getName(), client);
+//                }
+//            }
+//        }
+//    }
 
     private DefaultKubernetesClient getClient(String configYaml) throws RemotingException {
         try {
@@ -91,15 +106,4 @@ public class K8sManager {
         }
     }
 
-    private List<String> getK8sList() {
-        List<Cluster> clusterList = clusterMapper.selectList(null);
-        List<String> k8sConfigs = new ArrayList<>();
-        if (clusterList != null && clusterList.size() > 0) {
-            for(Cluster item :clusterList ) {
-                String k8sConfig = ClusterConfUtils.getK8sConfig(item.getConfig());
-                k8sConfigs.add(k8sConfig);
-            }
-        }
-        return k8sConfigs;
-    }
 }

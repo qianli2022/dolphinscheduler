@@ -20,11 +20,11 @@
 <mapper namespace="org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper">
 
     <sql id="baseSql">
-        id, namespace, k8s, user_id, limits_memory, limits_cpu, online_job_num, pod_replicas, pod_request_cpu, pod_request_memory, create_time, update_time
+        id, namespace, user_id, limits_memory, limits_cpu, pod_replicas, pod_request_cpu, pod_request_memory, cluster_code, cluster_name, create_time, update_time
     </sql>
 
     <sql id="baseSqlV2">
-        ${alias}.id, ${alias}.namespace, ${alias}.k8s, ${alias}.user_id, ${alias}.limits_memory, ${alias}.limits_cpu, ${alias}.online_job_num, ${alias}.pod_replicas, ${alias}.pod_request_cpu, ${alias}.pod_request_memory, ${alias}.create_time, ${alias}.update_time
+        ${alias}.id, ${alias}.namespace, ${alias}.user_id, ${alias}.limits_memory, ${alias}.limits_cpu, ${alias}.pod_replicas, ${alias}.pod_request_cpu, ${alias}.pod_request_memory, ${alias}.cluster_code, ${alias}.cluster_name, ${alias}.create_time, ${alias}.update_time
     </sql>
 
     <select id="queryK8sNamespacePaging" resultType="org.apache.dolphinscheduler.dao.entity.K8sNamespace">
