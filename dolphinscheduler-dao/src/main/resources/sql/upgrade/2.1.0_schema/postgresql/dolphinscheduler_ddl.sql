@@ -190,7 +190,7 @@ EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_k8s_name
    create_time        timestamp DEFAULT NULL ,
    update_time        timestamp DEFAULT NULL ,
    PRIMARY KEY (id) ,
-   CONSTRAINT k8s_namespace_unique UNIQUE (namespace,k8s)
+   CONSTRAINT k8s_namespace_unique UNIQUE (namespace,cluster_code)
 )';
 
 EXECUTE 'CREATE TABLE IF NOT EXISTS '|| quote_ident(v_schema) ||'."t_ds_relation_namespace_user" (

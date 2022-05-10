@@ -1903,12 +1903,12 @@ CREATE TABLE t_ds_k8s_namespace (
     pod_request_cpu    decimal(14,3) DEFAULT NULL,
     pod_request_memory int(11) DEFAULT NULL,
     limits_cpu         decimal(14,3) DEFAULT NULL,
-    cluster_code       bigint(20) DEFAULT NULL,
+    cluster_code       bigint(20) NOT NULL,
     cluster_name       varchar(100) DEFAULT NULL,
     create_time        datetime DEFAULT NULL ,
     update_time        datetime DEFAULT NULL ,
     PRIMARY KEY (id) ,
-    UNIQUE KEY k8s_namespace_unique (namespace,k8s)
+    UNIQUE KEY k8s_namespace_unique (namespace,cluster_code)
 );
 
 -- ----------------------------

@@ -1900,7 +1900,7 @@ CREATE TABLE `t_ds_k8s_namespace` (
   `create_time` datetime DEFAULT NULL COMMENT 'create time',
   `update_time` datetime DEFAULT NULL COMMENT 'update time',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `k8s_namespace_unique` (`namespace`,`k8s`)
+  UNIQUE KEY `k8s_namespace_unique` (`namespace`,`cluster_code`)
 ) ENGINE= INNODB AUTO_INCREMENT= 1 DEFAULT CHARSET= utf8;
 
 -- ----------------------------
