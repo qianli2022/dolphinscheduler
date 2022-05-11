@@ -44,25 +44,59 @@ public class K8sManager {
     /**
      * cache k8s client
      */
-    private static Map<String, KubernetesClient> clientMap = new Hashtable<>();
+    private static Map<Long, KubernetesClient> clientMap = new Hashtable<>();
 
     @Autowired
     private ClusterMapper clusterMapper;
 
+    /**
+     * get k8s client for api use
+     * @param clusterCode
+     * @return
+     */
     public synchronized KubernetesClient getK8sClient(Long clusterCode) {
         if (null == clusterCode) {
             return null;
         }
+
+        return getAndUpdateK8sClient(clusterCode, false);
+    }
+
+    /**
+     * @param clusterCode
+     * @return new client if need updated
+     */
+    public synchronized KubernetesClient getAndUpdateK8sClient(Long clusterCode, boolean update) {
+        if (null == clusterCode) {
+            return null;
+        }
+
+        if (update) {
+            deleteK8sClientInner(clusterCode);
+        }
+
         if (clientMap.containsKey(clusterCode)) {
             return clientMap.get(clusterCode);
         } else {
-            createK8sClient(clusterCode);
+            createK8sClientInner(clusterCode);
         }
         return clientMap.get(clusterCode);
     }
 
 
-    private void createK8sClient(Long clusterCode) {
+    private void deleteK8sClientInner(Long clusterCode) {
+        if (clusterCode == null) {
+            return;
+        }
+        Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
+        if (cluster == null) {
+            return;
+        }
+        KubernetesClient client = clientMap.get(clusterCode);
+        client.close();
+    }
+
+    private void createK8sClientInner(Long clusterCode) {
         Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
         if (cluster == null) {
             return;
@@ -73,7 +107,7 @@ public class K8sManager {
             DefaultKubernetesClient client = null;
             try {
                 client = getClient(k8sConfig);
-                clientMap.put(cluster.getName(), client);
+                clientMap.put(clusterCode, client);
             } catch (RemotingException e) {
                 logger.error("cluster code ={},fail to get k8s ApiClient:  {}", clusterCode, e.getMessage());
             }

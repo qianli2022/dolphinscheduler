@@ -17,6 +17,9 @@
 
 package org.apache.dolphinscheduler.service.k8s;
 
+import org.apache.dolphinscheduler.dao.entity.Cluster;
+import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +34,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
-
-import org.apache.dolphinscheduler.dao.entity.Cluster;
-import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class K8sManagerTest {

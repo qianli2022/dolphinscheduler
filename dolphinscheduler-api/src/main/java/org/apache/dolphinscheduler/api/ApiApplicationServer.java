@@ -19,6 +19,8 @@ package org.apache.dolphinscheduler.api;
 
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 
+import org.apache.curator.test.TestingServer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -35,9 +37,12 @@ public class ApiApplicationServer {
     @Autowired
     private TaskPluginManager taskPluginManager;
 
-    public static void main(String[] args) {
-//        final TestingServer server = new TestingServer(true);
-//        System.setProperty("registry.zookeeper.connect-string", server.getConnectString());
+//    public static void main(String[] args) {
+//        SpringApplication.run(ApiApplicationServer.class);
+//    }
+    public static void main(String[] args) throws Exception {
+        final TestingServer server = new TestingServer(true);
+        System.setProperty("registry.zookeeper.connect-string", server.getConnectString());
         SpringApplication.run(ApiApplicationServer.class);
     }
 

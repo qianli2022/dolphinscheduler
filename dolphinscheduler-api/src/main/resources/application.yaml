@@ -48,7 +48,7 @@ spring:
 #    password: root
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://tidb-lab.webex.com:4000/ds_3?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://tidb-lab.webex.com:4000/ds_4?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: Pda@1234
     hikari:
