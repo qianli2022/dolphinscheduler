@@ -76,4 +76,10 @@
         on b.id = a.namespace_id
         where b.id is not null
     </select>
+
+    <update id="updateNamespaceClusterName">
+        update t_ds_k8s_namespace
+        set cluster_name = #{clusterName}
+        where cluster_code = #{clusterCode}
+    </update>
 </mapper>

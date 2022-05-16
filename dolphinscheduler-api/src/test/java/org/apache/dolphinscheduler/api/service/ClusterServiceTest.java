@@ -28,7 +28,9 @@ import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper;
+import org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
+import org.apache.dolphinscheduler.service.k8s.K8sManager;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -48,6 +50,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -71,14 +75,18 @@ public class ClusterServiceTest {
     @Mock
     private ClusterProcessDefinitionRelationMapper relationMapper;
 
+    @Mock
+    private K8sNamespaceMapper k8sNamespaceMapper;
+
+    @Mock
+    private K8sManager k8sManager;
+
 //    @Mock
 //    private TaskDefinitionMapper taskDefinitionMapper;
 
     public static final String testUserName = "clusterServerTest";
 
     public static final String clusterName = "Env1";
-
-    public static final String workerGroups = "[\"default\"]";
 
     @Before
     public void setUp(){
@@ -91,69 +99,79 @@ public class ClusterServiceTest {
     @Test
     public void testCreateCluster() {
         User loginUser = getGeneralUser();
-        Map<String, Object> result = clusterService.createCluster(loginUser,clusterName,getConfig(),getDesc(),workerGroups);
+        Map<String, Object> result = clusterService.createCluster(loginUser,clusterName,getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
 
         loginUser = getAdminUser();
-        result = clusterService.createCluster(loginUser,clusterName,"",getDesc(),workerGroups);
+        result = clusterService.createCluster(loginUser,clusterName,"",getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_CONFIG_IS_NULL, result.get(Constants.STATUS));
 
-        result = clusterService.createCluster(loginUser,"",getConfig(),getDesc(),workerGroups);
+        result = clusterService.createCluster(loginUser,"",getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_NAME_IS_NULL, result.get(Constants.STATUS));
 
-        result = clusterService.createCluster(loginUser,clusterName,getConfig(),getDesc(),"test");
-        logger.info(result.toString());
-        Assert.assertEquals(Status.CLUSTER_PROCESS_DEFINITIONS_IS_INVALID, result.get(Constants.STATUS));
-
         Mockito.when(clusterMapper.queryByClusterName(clusterName)).thenReturn(getCluster());
-        result = clusterService.createCluster(loginUser,clusterName,getConfig(),getDesc(),workerGroups);
+        result = clusterService.createCluster(loginUser,clusterName,getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_NAME_EXISTS, result.get(Constants.STATUS));
 
         Mockito.when(clusterMapper.insert(Mockito.any(Cluster.class))).thenReturn(1);
-        Mockito.when(relationMapper.insert(Mockito.any(ClusterProcessDefinitionRelation.class))).thenReturn(1);
-        result = clusterService.createCluster(loginUser,"testName","test","test",workerGroups);
+//        Mockito.when(relationMapper.insert(Mockito.any(ClusterProcessDefinitionRelation.class))).thenReturn(1);
+        result = clusterService.createCluster(loginUser,"testName","testConfig","testDesc");
         logger.info(result.toString());
         Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
-
     }
 
     @Test
     public void testCheckParams() {
-        Map<String, Object> result = clusterService.checkParams(clusterName,getConfig(),"test");
-        Assert.assertEquals(Status.CLUSTER_PROCESS_DEFINITIONS_IS_INVALID, result.get(Constants.STATUS));
+//        Map<String, Object> result = clusterService.checkParams(clusterName,getConfig());
+//        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+//        result = clusterService.checkParams("",getConfig());
+//        Assert.assertEquals(Status.CLUSTER_NAME_IS_NULL, result.get(Constants.STATUS));
+//        result = clusterService.checkParams(clusterName,"");
+//        Assert.assertEquals(Status.CLUSTER_CONFIG_IS_NULL, result.get(Constants.STATUS));
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("k8s","apiVersion: v1");
+            System.out.println(obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void testUpdateClusterByCode() {
         User loginUser = getGeneralUser();
-        Map<String, Object> result = clusterService.updateClusterByCode(loginUser,1L,clusterName,getConfig(),getDesc(),workerGroups);
+        Map<String, Object> result = clusterService.updateClusterByCode(loginUser,1L,clusterName,getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
 
         loginUser = getAdminUser();
-        result = clusterService.updateClusterByCode(loginUser,1L,clusterName,"",getDesc(),workerGroups);
+        result = clusterService.updateClusterByCode(loginUser,1L,clusterName,"",getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_CONFIG_IS_NULL, result.get(Constants.STATUS));
 
-        result = clusterService.updateClusterByCode(loginUser,1L,"",getConfig(),getDesc(),workerGroups);
+        result = clusterService.updateClusterByCode(loginUser,1L,"",getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_NAME_IS_NULL, result.get(Constants.STATUS));
 
-        result = clusterService.updateClusterByCode(loginUser,1L,clusterName,getConfig(),getDesc(),"test");
+        result = clusterService.updateClusterByCode(loginUser,2L,clusterName,getConfig(),getDesc());
         logger.info(result.toString());
-        Assert.assertEquals(Status.CLUSTER_PROCESS_DEFINITIONS_IS_INVALID, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.CLUSTER_NOT_EXISTS, result.get(Constants.STATUS));
 
         Mockito.when(clusterMapper.queryByClusterName(clusterName)).thenReturn(getCluster());
-        result = clusterService.updateClusterByCode(loginUser,2L,clusterName,getConfig(),getDesc(),workerGroups);
+        result = clusterService.updateClusterByCode(loginUser,2L,clusterName,getConfig(),getDesc());
         logger.info(result.toString());
         Assert.assertEquals(Status.CLUSTER_NAME_EXISTS, result.get(Constants.STATUS));
 
-        Mockito.when(clusterMapper.update(Mockito.any(Cluster.class),Mockito.any(Wrapper.class))).thenReturn(1);
-        result = clusterService.updateClusterByCode(loginUser,1L,"testName","test","test",workerGroups);
+        Mockito.when(clusterMapper.updateById(Mockito.any(Cluster.class))).thenReturn(1);
+        Mockito.when(clusterMapper.queryByClusterCode(1L)).thenReturn(getCluster());
+        Mockito.when(k8sNamespaceMapper.updateNamespaceClusterName(Mockito.any(Long.class),Mockito.any(String.class))).thenReturn(1);
+        Mockito.when(k8sManager.getAndUpdateK8sClient(1L,true)).thenReturn(null);
+
+        result = clusterService.updateClusterByCode(loginUser,1L,"testName",getConfig(),"test");
         logger.info(result.toString());
         Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
 
@@ -263,22 +281,7 @@ public class ClusterServiceTest {
      * create an cluster config
      */
     private String getConfig() {
-        return "export HADOOP_HOME=/opt/hadoop-2.6.5\n"
-                + "export HADOOP_CONF_DIR=/etc/hadoop/conf\n"
-                + "export SPARK_HOME1=/opt/soft/spark1\n"
-                + "export SPARK_HOME2=/opt/soft/spark2\n"
-                + "export PYTHON_HOME=/opt/soft/python\n"
-                + "export JAVA_HOME=/opt/java/jdk1.8.0_181-amd64\n"
-                + "export HIVE_HOME=/opt/soft/hive\n"
-                + "export FLINK_HOME=/opt/soft/flink\n"
-                + "export DATAX_HOME=/opt/soft/datax\n"
-                + "export YARN_CONF_DIR=\"/etc/hadoop/conf\"\n"
-                + "\n"
-                + "export PATH=$HADOOP_HOME/bin:$SPARK_HOME1/bin:$SPARK_HOME2/bin:$PYTHON_HOME/bin:$JAVA_HOME/bin:$HIVE_HOME/bin:$FLINK_HOME/bin:$DATAX_HOME/bin:$PATH\n"
-                + "\n"
-                + "export HADOOP_CLASSPATH=`hadoop classpath`\n"
-                + "\n"
-                + "#echo \"HADOOP_CLASSPATH=\"$HADOOP_CLASSPATH";
+        return "{\"k8s\":\"apiVersion: v1\\nclusters:\\n- cluster:\\n    certificate-authority-data: LS0tLS1CRUdJTiBDRJUSUZJQ0FURS0tLS0tCg==\\n    server: https:\\/\\/127.0.0.1:6443\\n  name: kubernetes\\ncontexts:\\n- context:\\n    cluster: kubernetes\\n    user: kubernetes-admin\\n  name: kubernetes-admin@kubernetes\\ncurrent-context: kubernetes-admin@kubernetes\\nkind: Config\\npreferences: {}\\nusers:\\n- name: kubernetes-admin\\n  user:\\n    client-certificate-data: LS0tLS1CRUdJTiBDRVJJ0cEhYYnBLRVktLS0tLQo=\"}\n";
     }
 
     /**

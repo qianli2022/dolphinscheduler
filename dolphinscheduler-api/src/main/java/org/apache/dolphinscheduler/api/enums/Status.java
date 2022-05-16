@@ -375,9 +375,10 @@ public enum Status {
     QUERY_CLUSTER_BY_CODE_ERROR(1200028, "not found cluster [{0}] ", "查询集群编码[{0}]不存在"),
     QUERY_CLUSTER_ERROR(1200029, "login user query cluster error", "分页查询集群列表错误"),
     VERIFY_CLUSTER_ERROR(1200030, "verify cluster error", "验证集群信息错误"),
-    CLUSTER_PROCESS_DEFINITIONS_IS_INVALID(130015, "cluster worker groups is invalid format", "集群关联的工作组参数解析错误"),
-    UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR(130016, "You can't modify the process definition, because the process definition [{0}] and this cluster [{1}] already be used in the task [{2}]",
+    CLUSTER_PROCESS_DEFINITIONS_IS_INVALID(1200031, "cluster worker groups is invalid format", "集群关联的工作组参数解析错误"),
+    UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR(1200032, "You can't modify the process definition, because the process definition [{0}] and this cluster [{1}] already be used in the task [{2}]",
         "您不能修改集群选项，因为该工作流组 [{0}] 和 该集群 [{1}] 已经被用在任务 [{2}] 中"),
+    CLUSTER_NOT_EXISTS(120033, "this cluster can not found in db.", "集群配置数据库里查询不到为空"),
 
 
     TASK_GROUP_NAME_EXSIT(130001, "this task group name is repeated in a project", "该任务组名称在一个项目中已经使用"),

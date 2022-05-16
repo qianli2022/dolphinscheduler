@@ -90,7 +90,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
         paramsMap.add("code", clusterCode);
         paramsMap.add("name","cluster_test_update");
-        paramsMap.add("config","this is config content");
+        paramsMap.add("config","{\"k8s\":\"apiVersion: v1\"}");
         paramsMap.add("desc","the test cluster update");
 
         MvcResult mvcResult = mockMvc.perform(post("/cluster/update")

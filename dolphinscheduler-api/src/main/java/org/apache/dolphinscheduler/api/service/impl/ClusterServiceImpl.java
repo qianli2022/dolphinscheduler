@@ -20,19 +20,21 @@ package org.apache.dolphinscheduler.api.service.impl;
 import org.apache.dolphinscheduler.api.dto.ClusterDto;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.service.ClusterService;
+import org.apache.dolphinscheduler.api.service.K8sNamespaceService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
+import org.apache.dolphinscheduler.common.utils.ClusterConfUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils.CodeGenerateException;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.Cluster;
 import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
-import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper;
-import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
+import org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper;
+import org.apache.dolphinscheduler.service.k8s.K8sManager;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -75,48 +77,52 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     @Autowired
     private ClusterProcessDefinitionRelationMapper relationMapper;
 
-//    @Autowired
-//    private TaskDefinitionMapper taskDefinitionMapper;
+    @Autowired
+    private K8sManager k8sManager;
 
+//    @Autowired
+//    private K8sNamespaceService k8sNamespaceService;
+
+    @Autowired
+    private K8sNamespaceMapper k8sNamespaceMapper;
     /**
      * create cluster
      *
-     * @param loginUser login user
-     * @param name cluster name
-     * @param config cluster config
-     * @param desc cluster desc
-     * @param processDefinitions worker groups
+     * @param loginUser          login user
+     * @param name               cluster name
+     * @param config             cluster config
+     * @param desc               cluster desc
      */
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
-    public Map<String, Object> createCluster(User loginUser, String name, String config, String desc, String processDefinitions) {
+    public Map<String, Object> createCluster(User loginUser, String name, String config, String desc) {
         Map<String, Object> result = new HashMap<>();
         if (isNotAdmin(loginUser, result)) {
             return result;
         }
 
-        Map<String, Object> checkResult = checkParams(name,config,processDefinitions);
+        Map<String, Object> checkResult = checkParams(name, config);
         if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
             return checkResult;
         }
 
-        Cluster cluster = clusterMapper.queryByClusterName(name);
-        if (cluster != null) {
+        Cluster clusterExistByName = clusterMapper.queryByClusterName(name);
+        if (clusterExistByName != null) {
             putMsg(result, Status.CLUSTER_NAME_EXISTS, name);
             return result;
         }
 
-        Cluster env = new Cluster();
-        env.setName(name);
-        env.setConfig(config);
-        env.setDescription(desc);
-        env.setOperator(loginUser.getId());
-        env.setCreateTime(new Date());
-        env.setUpdateTime(new Date());
+        Cluster cluster = new Cluster();
+        cluster.setName(name);
+        cluster.setConfig(config);
+        cluster.setDescription(desc);
+        cluster.setOperator(loginUser.getId());
+        cluster.setCreateTime(new Date());
+        cluster.setUpdateTime(new Date());
         long code = 0L;
         try {
             code = CodeGenerateUtils.getInstance().genCode();
-            env.setCode(code);
+            cluster.setCode(code);
         } catch (CodeGenerateException e) {
             logger.error("Cluster code get error, ", e);
         }
@@ -125,24 +131,8 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
             return result;
         }
 
-        if (clusterMapper.insert(env) > 0) {
-            if (!StringUtils.isEmpty(processDefinitions)) {
-                List<String> processDefinitionList = JSONUtils.parseObject(processDefinitions, new TypeReference<List<String>>(){});
-                if (CollectionUtils.isNotEmpty(processDefinitionList)) {
-                    processDefinitionList.stream().forEach(processDefinition -> {
-                        if (!StringUtils.isEmpty(processDefinition)) {
-                            ClusterProcessDefinitionRelation relation = new ClusterProcessDefinitionRelation();
-                            relation.setClusterCode(env.getCode());
-                            relation.setProcessDefinition(processDefinition);
-                            relation.setOperator(loginUser.getId());
-                            relation.setCreateTime(new Date());
-                            relation.setUpdateTime(new Date());
-                            relationMapper.insert(relation);
-                        }
-                    });
-                }
-            }
-            result.put(Constants.DATA_LIST, env.getCode());
+        if (clusterMapper.insert(cluster) > 0) {
+            result.put(Constants.DATA_LIST, cluster.getCode());
             putMsg(result, Status.SUCCESS);
         } else {
             putMsg(result, Status.CREATE_CLUSTER_ERROR);
@@ -153,9 +143,9 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     /**
      * query cluster paging
      *
-     * @param pageNo page number
+     * @param pageNo    page number
      * @param searchVal search value
-     * @param pageSize page size
+     * @param pageSize  page size
      * @return cluster list page
      */
     @Override
@@ -171,12 +161,12 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
 
         if (CollectionUtils.isNotEmpty(clusterIPage.getRecords())) {
             Map<Long, List<String>> relationMap = relationMapper.selectList(null).stream()
-                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode,Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition,Collectors.toList())));
+                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode, Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition, Collectors.toList())));
 
             List<ClusterDto> dtoList = clusterIPage.getRecords().stream().map(cluster -> {
                 ClusterDto dto = new ClusterDto();
-                BeanUtils.copyProperties(cluster,dto);
-                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(),new ArrayList<String>());
+                BeanUtils.copyProperties(cluster, dto);
+                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(), new ArrayList<String>());
                 dto.setProcessDefinitions(processDefinitions);
                 return dto;
             }).collect(Collectors.toList());
@@ -198,26 +188,26 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
      */
     @Override
     public Map<String, Object> queryAllClusterList() {
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<Cluster> clusterList = clusterMapper.queryAllClusterList();
 
         if (CollectionUtils.isNotEmpty(clusterList)) {
             Map<Long, List<String>> relationMap = relationMapper.selectList(null).stream()
-                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode,Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition,Collectors.toList())));
+                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode, Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition, Collectors.toList())));
 
             List<ClusterDto> dtoList = clusterList.stream().map(cluster -> {
                 ClusterDto dto = new ClusterDto();
-                BeanUtils.copyProperties(cluster,dto);
-                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(),new ArrayList<String>());
+                BeanUtils.copyProperties(cluster, dto);
+                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(), new ArrayList<String>());
                 dto.setProcessDefinitions(processDefinitions);
                 return dto;
             }).collect(Collectors.toList());
-            result.put(Constants.DATA_LIST,dtoList);
+            result.put(Constants.DATA_LIST, dtoList);
         } else {
             result.put(Constants.DATA_LIST, new ArrayList<>());
         }
 
-        putMsg(result,Status.SUCCESS);
+        putMsg(result, Status.SUCCESS);
         return result;
     }
 
@@ -230,17 +220,17 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     public Map<String, Object> queryClusterByCode(Long code) {
         Map<String, Object> result = new HashMap<>();
 
-        Cluster env = clusterMapper.queryByClusterCode(code);
+        Cluster cluster = clusterMapper.queryByClusterCode(code);
 
-        if (env == null) {
+        if (cluster == null) {
             putMsg(result, Status.QUERY_CLUSTER_BY_CODE_ERROR, code);
         } else {
-            List<String> processDefinitions = relationMapper.queryByClusterCode(env.getCode()).stream()
+            List<String> processDefinitions = relationMapper.queryByClusterCode(cluster.getCode()).stream()
                 .map(item -> item.getProcessDefinition())
                 .collect(Collectors.toList());
 
             ClusterDto dto = new ClusterDto();
-            BeanUtils.copyProperties(env,dto);
+            BeanUtils.copyProperties(cluster, dto);
             dto.setProcessDefinitions(processDefinitions);
             result.put(Constants.DATA_LIST, dto);
             putMsg(result, Status.SUCCESS);
@@ -257,16 +247,16 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     public Map<String, Object> queryClusterByName(String name) {
         Map<String, Object> result = new HashMap<>();
 
-        Cluster env = clusterMapper.queryByClusterName(name);
-        if (env == null) {
+        Cluster cluster = clusterMapper.queryByClusterName(name);
+        if (cluster == null) {
             putMsg(result, Status.QUERY_CLUSTER_BY_NAME_ERROR, name);
         } else {
-            List<String> processDefinitions = relationMapper.queryByClusterCode(env.getCode()).stream()
+            List<String> processDefinitions = relationMapper.queryByClusterCode(cluster.getCode()).stream()
                 .map(item -> item.getProcessDefinition())
                 .collect(Collectors.toList());
 
             ClusterDto dto = new ClusterDto();
-            BeanUtils.copyProperties(env,dto);
+            BeanUtils.copyProperties(cluster, dto);
             dto.setProcessDefinitions(processDefinitions);
             result.put(Constants.DATA_LIST, dto);
             putMsg(result, Status.SUCCESS);
@@ -278,7 +268,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
      * delete cluster
      *
      * @param loginUser login user
-     * @param code cluster code
+     * @param code      cluster code
      */
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
@@ -289,7 +279,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         }
 
         Integer relatedProcessNumber = relationMapper
-            .selectCount(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda().eq(ClusterProcessDefinitionRelation::getClusterCode,code));
+            .selectCount(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda().eq(ClusterProcessDefinitionRelation::getClusterCode, code));
 
         if (relatedProcessNumber > 0) {
             putMsg(result, Status.DELETE_CLUSTER_RELATED_TASK_EXISTS);
@@ -300,7 +290,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         if (delete > 0) {
             relationMapper.delete(new QueryWrapper<ClusterProcessDefinitionRelation>()
                 .lambda()
-                .eq(ClusterProcessDefinitionRelation::getClusterCode,code));
+                .eq(ClusterProcessDefinitionRelation::getClusterCode, code));
             putMsg(result, Status.SUCCESS);
         } else {
             putMsg(result, Status.DELETE_CLUSTER_ERROR);
@@ -308,94 +298,147 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         return result;
     }
 
+//    /**
+//     * update cluster
+//     *
+//     * @param loginUser          login user
+//     * @param code               cluster code
+//     * @param name               cluster name
+//     * @param config             cluster config
+//     * @param desc               cluster desc
+//     * @param processDefinitions worker groups
+//     */
+//    @Transactional(rollbackFor = RuntimeException.class)
+//    @Override
+//    public Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String processDefinitions) {
+//        Map<String, Object> result = new HashMap<>();
+//        if (isNotAdmin(loginUser, result)) {
+//            return result;
+//        }
+//
+//        Map<String, Object> checkResult = checkParams(name, config);
+//        if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
+//            return checkResult;
+//        }
+//
+//        Cluster cluster = clusterMapper.queryByClusterName(name);
+//        if (cluster != null && !cluster.getCode().equals(code)) {
+//            putMsg(result, Status.CLUSTER_NAME_EXISTS, name);
+//            return result;
+//        }
+//
+//        Set<String> processDefinitionSet;
+//        if (!StringUtils.isEmpty(processDefinitions)) {
+//            processDefinitionSet = JSONUtils.parseObject(processDefinitions, new TypeReference<Set<String>>() {
+//            });
+//        } else {
+//            processDefinitionSet = new TreeSet<>();
+//        }
+//
+//        Set<String> existProcessDefinitionSet = relationMapper
+//            .queryByClusterCode(code)
+//            .stream()
+//            .map(item -> item.getProcessDefinition())
+//            .collect(Collectors.toSet());
+//
+//        Set<String> deleteProcessDefinitionSet = SetUtils.difference(existProcessDefinitionSet, processDefinitionSet).toSet();
+//        Set<String> addProcessDefinitionSet = SetUtils.difference(processDefinitionSet, existProcessDefinitionSet).toSet();
+//
+//        // verify whether the relation of this cluster and worker groups can be adjusted
+//        checkResult = checkUsedClusterProcessDefinitionRelation(deleteProcessDefinitionSet, name, code);
+//        if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
+//            return checkResult;
+//        }
+//
+//        Cluster cluster = new Cluster();
+//        cluster.setCode(code);
+//        cluster.setName(name);
+//        cluster.setConfig(config);
+//        cluster.setDescription(desc);
+//        cluster.setOperator(loginUser.getId());
+//        cluster.setUpdateTime(new Date());
+//
+//        int update = clusterMapper.update(cluster, new UpdateWrapper<Cluster>().lambda().eq(Cluster::getCode, code));
+//        if (update > 0) {
+//            deleteProcessDefinitionSet.stream().forEach(key -> {
+//                if (StringUtils.isNotEmpty(key)) {
+//                    relationMapper.delete(new QueryWrapper<ClusterProcessDefinitionRelation>()
+//                        .lambda()
+//                        .eq(ClusterProcessDefinitionRelation::getClusterCode, code)
+//                        .eq(ClusterProcessDefinitionRelation::getProcessDefinition, key));
+//                }
+//            });
+//            addProcessDefinitionSet.stream().forEach(key -> {
+//                if (StringUtils.isNotEmpty(key)) {
+//                    ClusterProcessDefinitionRelation relation = new ClusterProcessDefinitionRelation();
+//                    relation.setClusterCode(code);
+//                    relation.setProcessDefinition(key);
+//                    relation.setUpdateTime(new Date());
+//                    relation.setCreateTime(new Date());
+//                    relation.setOperator(loginUser.getId());
+//                    relationMapper.insert(relation);
+//                }
+//            });
+//            putMsg(result, Status.SUCCESS);
+//        } else {
+//            putMsg(result, Status.UPDATE_CLUSTER_ERROR, name);
+//        }
+//        return result;
+//    }
+
     /**
      * update cluster
      *
      * @param loginUser login user
-     * @param code cluster code
-     * @param name cluster name
-     * @param config cluster config
-     * @param desc cluster desc
-     * @param processDefinitions worker groups
+     * @param code      cluster code
+     * @param name      cluster name
+     * @param config    cluster config
+     * @param desc      cluster desc
      */
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
-    public Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String processDefinitions) {
+    public Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc) {
         Map<String, Object> result = new HashMap<>();
         if (isNotAdmin(loginUser, result)) {
             return result;
         }
 
-        Map<String, Object> checkResult = checkParams(name,config,processDefinitions);
+        Map<String, Object> checkResult = checkParams(name, config);
         if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
             return checkResult;
         }
 
-        Cluster cluster = clusterMapper.queryByClusterName(name);
-        if (cluster != null && !cluster.getCode().equals(code)) {
+        Cluster clusterExistByName = clusterMapper.queryByClusterName(name);
+        if (clusterExistByName != null && !clusterExistByName.getCode().equals(code)) {
             putMsg(result, Status.CLUSTER_NAME_EXISTS, name);
             return result;
         }
 
-        Set<String> processDefinitionSet;
-        if (!StringUtils.isEmpty(processDefinitions)) {
-            processDefinitionSet = JSONUtils.parseObject(processDefinitions, new TypeReference<Set<String>>() {});
-        } else {
-            processDefinitionSet = new TreeSet<>();
+        Cluster clusterExist = clusterMapper.queryByClusterCode(code);
+        if (clusterExist == null) {
+            putMsg(result, Status.CLUSTER_NOT_EXISTS, name);
+            return result;
         }
 
-        Set<String> existProcessDefinitionSet = relationMapper
-            .queryByClusterCode(code)
-            .stream()
-            .map(item -> item.getProcessDefinition())
-            .collect(Collectors.toSet());
+        //need update namespace name
+        if(!clusterExist.getName().equals(name)) {
+            k8sNamespaceMapper.updateNamespaceClusterName(clusterExist.getCode(), clusterExist.getName());
+        }
+        //update cluster
+        clusterExist.setConfig(config);
+        clusterExist.setName(name);
+        clusterMapper.updateById(clusterExist);
+        //need not update relation
 
-        Set<String> deleteProcessDefinitionSet = SetUtils.difference(existProcessDefinitionSet,processDefinitionSet).toSet();
-        Set<String> addProcessDefinitionSet = SetUtils.difference(processDefinitionSet,existProcessDefinitionSet).toSet();
-
-        // verify whether the relation of this cluster and worker groups can be adjusted
-        checkResult = checkUsedClusterProcessDefinitionRelation(deleteProcessDefinitionSet, name, code);
-        if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
-            return checkResult;
+        //k8s config not change,need not update
+        if (!config.equals(ClusterConfUtils.getK8sConfig(clusterExist.getConfig()))) {
+            k8sManager.getAndUpdateK8sClient(code, true);
         }
 
-        Cluster env = new Cluster();
-        env.setCode(code);
-        env.setName(name);
-        env.setConfig(config);
-        env.setDescription(desc);
-        env.setOperator(loginUser.getId());
-        env.setUpdateTime(new Date());
-
-        int update = clusterMapper.update(env, new UpdateWrapper<Cluster>().lambda().eq(Cluster::getCode, code));
-        if (update > 0) {
-            deleteProcessDefinitionSet.stream().forEach(key -> {
-                if (StringUtils.isNotEmpty(key)) {
-                    relationMapper.delete(new QueryWrapper<ClusterProcessDefinitionRelation>()
-                        .lambda()
-                        .eq(ClusterProcessDefinitionRelation::getClusterCode, code)
-                        .eq(ClusterProcessDefinitionRelation::getProcessDefinition, key));
-                }
-            });
-            addProcessDefinitionSet.stream().forEach(key -> {
-                if (StringUtils.isNotEmpty(key)) {
-                    ClusterProcessDefinitionRelation relation = new ClusterProcessDefinitionRelation();
-                    relation.setClusterCode(code);
-                    relation.setProcessDefinition(key);
-                    relation.setUpdateTime(new Date());
-                    relation.setCreateTime(new Date());
-                    relation.setOperator(loginUser.getId());
-                    relationMapper.insert(relation);
-                }
-            });
-            putMsg(result, Status.SUCCESS);
-        } else {
-            putMsg(result, Status.UPDATE_CLUSTER_ERROR, name);
-        }
+        //
+        putMsg(result, Status.SUCCESS);
         return result;
     }
-
-
 
     /**
      * verify cluster name
@@ -422,16 +465,16 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         return result;
     }
 
-    private Map<String, Object> checkUsedClusterProcessDefinitionRelation(Set<String> deleteKeySet,String clusterName, Long clusterCode) {
+    private Map<String, Object> checkUsedClusterProcessDefinitionRelation(Set<String> deleteKeySet, String clusterName, Long clusterCode) {
         Map<String, Object> result = new HashMap<>();
         for (String processDefinition : deleteKeySet) {
             ClusterProcessDefinitionRelation clusterProcessDefinitionRelation = relationMapper
                 .selectOne(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda()
-                    .eq(ClusterProcessDefinitionRelation::getClusterCode,clusterCode)
-                    .eq(ClusterProcessDefinitionRelation::getProcessDefinition,processDefinition));
+                    .eq(ClusterProcessDefinitionRelation::getClusterCode, clusterCode)
+                    .eq(ClusterProcessDefinitionRelation::getProcessDefinition, processDefinition));
 
             if (Objects.nonNull(clusterProcessDefinitionRelation)) {
-                putMsg(result, Status.UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR,processDefinition,clusterName,clusterProcessDefinitionRelation.getProcessDefinition());
+                putMsg(result, Status.UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR, processDefinition, clusterName, clusterProcessDefinitionRelation.getProcessDefinition());
                 return result;
             }
         }
@@ -439,7 +482,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         return result;
     }
 
-    public Map<String, Object> checkParams(String name, String config, String processDefinitions) {
+    public Map<String, Object> checkParams(String name, String config) {
         Map<String, Object> result = new HashMap<>();
         if (StringUtils.isEmpty(name)) {
             putMsg(result, Status.CLUSTER_NAME_IS_NULL);
@@ -448,13 +491,6 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         if (StringUtils.isEmpty(config)) {
             putMsg(result, Status.CLUSTER_CONFIG_IS_NULL);
             return result;
-        }
-        if (!StringUtils.isEmpty(processDefinitions)) {
-            List<String> processDefinitionList = JSONUtils.parseObject(processDefinitions, new TypeReference<List<String>>(){});
-            if (Objects.isNull(processDefinitionList)) {
-                putMsg(result, Status.CLUSTER_PROCESS_DEFINITIONS_IS_INVALID);
-                return result;
-            }
         }
         result.put(Constants.STATUS, Status.SUCCESS);
         return result;

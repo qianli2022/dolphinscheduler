@@ -51,6 +51,7 @@ public class K8sManager {
 
     /**
      * get k8s client for api use
+     *
      * @param clusterCode
      * @return
      */
@@ -93,7 +94,9 @@ public class K8sManager {
             return;
         }
         KubernetesClient client = clientMap.get(clusterCode);
-        client.close();
+        if (client != null) {
+            client.close();
+        }
     }
 
     private void createK8sClientInner(Long clusterCode) {

@@ -72,4 +72,13 @@ public interface K8sNamespaceMapper extends BaseMapper<K8sNamespace> {
      * @return namespace list
      */
     List<K8sNamespace> queryNamespaceAvailable(@Param("userId") Integer userId);
+
+    /**
+     * update cluster name for query
+     *
+     * @param clusterCode
+     * @return count
+     */
+    int updateNamespaceClusterName(@Param("clusterCode") Long clusterCode,
+                                   @Param("clusterName") String clusterName);
 }

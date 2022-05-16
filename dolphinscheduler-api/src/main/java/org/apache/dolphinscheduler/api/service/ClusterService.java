@@ -34,9 +34,8 @@ public interface ClusterService {
      * @param name cluster name
      * @param config cluster config
      * @param desc cluster desc
-     * @param workerGroups worker groups
      */
-    Map<String, Object> createCluster(User loginUser, String name, String config, String desc, String workerGroups);
+    Map<String, Object> createCluster(User loginUser, String name, String config, String desc);
 
     /**
      * query cluster
@@ -61,6 +60,18 @@ public interface ClusterService {
      */
     Map<String, Object> deleteClusterByCode(User loginUser, Long code);
 
+//    /**
+//     * update cluster
+//     *
+//     * @param loginUser login user
+//     * @param code cluster code
+//     * @param name cluster name
+//     * @param config cluster config
+//     * @param desc cluster desc
+//     * @param workerGroups worker groups
+//     */
+//    Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String workerGroups);
+
     /**
      * update cluster
      *
@@ -69,9 +80,8 @@ public interface ClusterService {
      * @param name cluster name
      * @param config cluster config
      * @param desc cluster desc
-     * @param workerGroups worker groups
      */
-    Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String workerGroups);
+    Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc);
 
     /**
      * query cluster paging

@@ -66,8 +66,8 @@ public class ClusterController extends BaseController {
      * create cluster
      *
      * @param loginUser   login user
-     * @param name cluster name
-     * @param config config
+     * @param name        cluster name
+     * @param config      config
      * @param description description
      * @return returns an error if it exists
      */
@@ -75,8 +75,7 @@ public class ClusterController extends BaseController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "name", value = "CLUSTER_NAME", required = true, dataType = "String"),
         @ApiImplicitParam(name = "config", value = "CONFIG", required = true, dataType = "String"),
-        @ApiImplicitParam(name = "description", value = "CLUSTER_DESC", dataType = "String"),
-        @ApiImplicitParam(name = "processDefinition", value = "PROCESS_DEFINITION_LIST", dataType = "String")
+        @ApiImplicitParam(name = "description", value = "CLUSTER_DESC", dataType = "String")
     })
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -85,10 +84,9 @@ public class ClusterController extends BaseController {
     public Result createProject(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                 @RequestParam("name") String name,
                                 @RequestParam("config") String config,
-                                @RequestParam(value = "description", required = false) String description,
-                                @RequestParam(value = "processDefinitions", required = false) String processDefinitions) {
+                                @RequestParam(value = "description", required = false) String description) {
 
-        Map<String, Object> result = clusterService.createCluster(loginUser, name, config, description, processDefinitions);
+        Map<String, Object> result = clusterService.createCluster(loginUser, name, config, description);
         return returnDataList(result);
     }
 
@@ -96,9 +94,9 @@ public class ClusterController extends BaseController {
      * update cluster
      *
      * @param loginUser   login user
-     * @param code   cluster code
-     * @param name cluster name
-     * @param config cluster config
+     * @param code        cluster code
+     * @param name        cluster name
+     * @param config      cluster config
      * @param description description
      * @return update result code
      */
@@ -108,19 +106,17 @@ public class ClusterController extends BaseController {
         @ApiImplicitParam(name = "name", value = "CLUSTER_NAME", required = true, dataType = "String"),
         @ApiImplicitParam(name = "config", value = "CLUSTER_CONFIG", required = true, dataType = "String"),
         @ApiImplicitParam(name = "description", value = "CLUSTER_DESC", dataType = "String"),
-        @ApiImplicitParam(name = "processDefinitions", value = "PROCESS_DEFINITION_LIST", dataType = "String")
     })
     @PostMapping(value = "/update")
     @ResponseStatus(HttpStatus.OK)
     @ApiException(UPDATE_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result updateCluster(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                                    @RequestParam("code") Long code,
-                                    @RequestParam("name") String name,
-                                    @RequestParam("config") String config,
-                                    @RequestParam(value = "description", required = false) String description,
-                                    @RequestParam(value = "processDefinitions", required = false) String processDefinitions) {
-        Map<String, Object> result = clusterService.updateClusterByCode(loginUser, code, name, config, description, processDefinitions);
+                                @RequestParam("code") Long code,
+                                @RequestParam("name") String name,
+                                @RequestParam("config") String config,
+                                @RequestParam(value = "description", required = false) String description) {
+        Map<String, Object> result = clusterService.updateClusterByCode(loginUser, code, name, config, description);
         return returnDataList(result);
     }
 
@@ -139,7 +135,7 @@ public class ClusterController extends BaseController {
     @ApiException(QUERY_CLUSTER_BY_CODE_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result queryClusterByCode(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                                   @RequestParam("clusterCode") Long clusterCode) {
+                                     @RequestParam("clusterCode") Long clusterCode) {
 
         Map<String, Object> result = clusterService.queryClusterByCode(clusterCode);
         return returnDataList(result);
@@ -181,7 +177,7 @@ public class ClusterController extends BaseController {
     /**
      * delete cluster by code
      *
-     * @param loginUser login user
+     * @param loginUser   login user
      * @param clusterCode cluster code
      * @return delete result code
      */
@@ -220,7 +216,7 @@ public class ClusterController extends BaseController {
     /**
      * verify cluster and cluster name
      *
-     * @param loginUser login user
+     * @param loginUser   login user
      * @param clusterName cluster name
      * @return true if the cluster name not exists, otherwise return false
      */
@@ -233,7 +229,7 @@ public class ClusterController extends BaseController {
     @ApiException(VERIFY_CLUSTER_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result verifyCluster(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                              @RequestParam(value = "clusterName") String clusterName
+                                @RequestParam(value = "clusterName") String clusterName
     ) {
         Map<String, Object> result = clusterService.verifyCluster(clusterName);
         return returnDataList(result);
