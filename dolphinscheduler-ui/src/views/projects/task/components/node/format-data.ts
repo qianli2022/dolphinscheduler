@@ -310,6 +310,18 @@ export function formatParams(data: INodeData): {
     taskParams.paragraphId = data.zeppelinParagraphId
   }
 
+  if (data.taskType === 'JUPYTER') {
+    taskParams.condaEnvName = data.condaEnvName
+    taskParams.inputNotePath = data.inputNotePath
+    taskParams.outputNotePath = data.outputNotePath
+    taskParams.parameters = data.parameters
+    taskParams.kernel = data.kernel
+    taskParams.engine = data.engine
+    taskParams.executionTimeout = data.executionTimeout
+    taskParams.startTimeout = data.startTimeout
+    taskParams.others = data.others
+  }
+
   if (data.taskType === 'PIGEON') {
     taskParams.targetJobName = data.targetJobName
   }
@@ -343,6 +355,7 @@ export function formatParams(data: INodeData): {
           item.value = item.value || ''
           return item
         }),
+        initScript: data.initScript,
         rawScript: data.rawScript,
         resourceList: data.resourceList?.length
           ? data.resourceList.map((id: number) => ({ id }))
@@ -468,6 +481,10 @@ export function formatModel(data: ITaskData) {
     params.rawScript = data.taskParams?.rawScript
   }
 
+  if (data.taskParams?.initScript) {
+    params.initScript = data.taskParams?.initScript
+  }
+
   if (data.taskParams?.switchResult) {
     params.switchResult = data.taskParams.switchResult
     params.dependTaskList = data.taskParams.switchResult?.dependTaskList
@@ -514,22 +531,6 @@ export function formatModel(data: ITaskData) {
     params.executorMemory = data.taskParams.sparkParameters.executorMemory
     params.numExecutors = data.taskParams.sparkParameters.numExecutors
     params.others = data.taskParams.sparkParameters.others
-  }
-
-  if (data.taskParams?.jobFlowDefineJson) {
-    params.jobFlowDefineJson = data.taskParams.jobFlowDefineJson
-  }
-
-  if (data.taskParams?.zeppelinNoteId) {
-    params.zeppelinNoteId = data.taskParams.zeppelinNoteId
-  }
-
-  if (data.taskParams?.zeppelinParagraphId) {
-    params.zeppelinParagraphId = data.taskParams.zeppelinParagraphId
-  }
-
-  if (data.taskParams?.processDefinitionCode) {
-    params.processDefinitionCode = data.taskParams.processDefinitionCode
   }
 
   if (data.taskParams?.conditionResult?.successNode?.length) {
