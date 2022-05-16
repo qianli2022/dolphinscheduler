@@ -41,15 +41,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Preconditions;
 
 public class ClusterControllerTest extends AbstractControllerTest {
-    private static final Logger logger = LoggerFactory.getLogger(ClusterControllerTest.class);
-
-    private String clusterCode;
-
     public static final String clusterName = "Cluster1";
-
     public static final String config = "this is config content";
-
     public static final String desc = "this is cluster description";
+    private static final Logger logger = LoggerFactory.getLogger(ClusterControllerTest.class);
+    private String clusterCode;
 
     @Before
     public void before() throws Exception {
@@ -65,40 +61,41 @@ public class ClusterControllerTest extends AbstractControllerTest {
     public void testCreateCluster() throws Exception {
 
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
-        paramsMap.add("name",clusterName);
-        paramsMap.add("config",config);
-        paramsMap.add("description",desc);
+        paramsMap.add("name", clusterName);
+        paramsMap.add("config", config);
+        paramsMap.add("description", desc);
 
         MvcResult mvcResult = mockMvc.perform(post("/cluster/create")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
-        Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), new TypeReference<Result<String>>() {});
+        Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), new TypeReference<Result<String>>() {
+        });
         logger.info(result.toString());
         Assert.assertTrue(result != null && result.isSuccess());
         Assert.assertNotNull(result.getData());
         logger.info("create cluster return result:{}", mvcResult.getResponse().getContentAsString());
 
-        clusterCode = (String)result.getData();
+        clusterCode = (String) result.getData();
     }
 
     @Test
     public void testUpdateCluster() throws Exception {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
         paramsMap.add("code", clusterCode);
-        paramsMap.add("name","cluster_test_update");
-        paramsMap.add("config","{\"k8s\":\"apiVersion: v1\"}");
-        paramsMap.add("desc","the test cluster update");
+        paramsMap.add("name", "cluster_test_update");
+        paramsMap.add("config", "{\"k8s\":\"apiVersion: v1\"}");
+        paramsMap.add("desc", "the test cluster update");
 
         MvcResult mvcResult = mockMvc.perform(post("/cluster/update")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
@@ -113,11 +110,11 @@ public class ClusterControllerTest extends AbstractControllerTest {
         paramsMap.add("clusterCode", clusterCode);
 
         MvcResult mvcResult = mockMvc.perform(get("/cluster/query-by-code")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
@@ -130,16 +127,16 @@ public class ClusterControllerTest extends AbstractControllerTest {
     @Test
     public void testQueryClusterListPaging() throws Exception {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
-        paramsMap.add("searchVal","test");
-        paramsMap.add("pageSize","2");
-        paramsMap.add("pageNo","2");
+        paramsMap.add("searchVal", "test");
+        paramsMap.add("pageSize", "2");
+        paramsMap.add("pageNo", "2");
 
         MvcResult mvcResult = mockMvc.perform(get("/cluster/list-paging")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
@@ -152,11 +149,11 @@ public class ClusterControllerTest extends AbstractControllerTest {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
 
         MvcResult mvcResult = mockMvc.perform(get("/cluster/query-cluster-list")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
@@ -168,14 +165,14 @@ public class ClusterControllerTest extends AbstractControllerTest {
     @Test
     public void testVerifyCluster() throws Exception {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
-        paramsMap.add("clusterName",clusterName);
+        paramsMap.add("clusterName", clusterName);
 
         MvcResult mvcResult = mockMvc.perform(post("/cluster/verify-cluster")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
@@ -191,11 +188,11 @@ public class ClusterControllerTest extends AbstractControllerTest {
         paramsMap.add("clusterCode", clusterCode);
 
         MvcResult mvcResult = mockMvc.perform(post("/cluster/delete")
-                .header(SESSION_ID, sessionId)
-                .params(paramsMap))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+            .header(SESSION_ID, sessionId)
+            .params(paramsMap))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());

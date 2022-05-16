@@ -18,6 +18,7 @@
 package org.apache.dolphinscheduler.service.k8s;
 
 import org.apache.dolphinscheduler.dao.entity.K8sNamespace;
+import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 
 import java.util.Optional;
 
@@ -41,12 +42,12 @@ public class K8sClientService {
     @Autowired
     private K8sManager k8sManager;
 
-    public ResourceQuota upsertNamespaceAndResourceToK8s(K8sNamespace k8sNamespace, String yamlStr) {
+    public ResourceQuota upsertNamespaceAndResourceToK8s(K8sNamespace k8sNamespace, String yamlStr) throws RemotingException {
         upsertNamespaceToK8s(k8sNamespace.getNamespace(), k8sNamespace.getClusterCode());
         return upsertNamespacedResourceToK8s(k8sNamespace, yamlStr);
     }
 
-    public Optional<Namespace> deleteNamespaceToK8s(String name, Long clusterCode) {
+    public Optional<Namespace> deleteNamespaceToK8s(String name, Long clusterCode) throws RemotingException {
         Optional<Namespace> result = getNamespaceFromK8s(name, clusterCode);
         if (result.isPresent()) {
             KubernetesClient client = k8sManager.getK8sClient(clusterCode);
@@ -60,7 +61,7 @@ public class K8sClientService {
         return getNamespaceFromK8s(name, clusterCode);
     }
 
-    private ResourceQuota upsertNamespacedResourceToK8s(K8sNamespace k8sNamespace, String yamlStr) {
+    private ResourceQuota upsertNamespacedResourceToK8s(K8sNamespace k8sNamespace, String yamlStr) throws RemotingException {
 
         KubernetesClient client = k8sManager.getK8sClient(k8sNamespace.getClusterCode());
 
@@ -86,7 +87,7 @@ public class K8sClientService {
                 .createOrReplace(body);
     }
 
-    private Optional<Namespace> getNamespaceFromK8s(String name, Long clusterCode) {
+    private Optional<Namespace> getNamespaceFromK8s(String name, Long clusterCode) throws RemotingException {
         NamespaceList listNamespace =
                 k8sManager.getK8sClient(clusterCode).namespaces().list();
 
@@ -99,7 +100,7 @@ public class K8sClientService {
         return list;
     }
 
-    private Namespace upsertNamespaceToK8s(String name, Long clusterCode) {
+    private Namespace upsertNamespaceToK8s(String name, Long clusterCode) throws RemotingException {
         Optional<Namespace> result = getNamespaceFromK8s(name, clusterCode);
         //if not exist create
         if (!result.isPresent()) {

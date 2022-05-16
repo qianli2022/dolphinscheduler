@@ -51,7 +51,7 @@ public class K8sNamespaceUser {
      * k8s cluster
      */
     @TableField(exist = false)
-    private String k8s;
+    private String clusterName;
 
     /**
      * namespace name
@@ -100,12 +100,12 @@ public class K8sNamespaceUser {
         this.namespaceId = namespaceId;
     }
 
-    public String getK8s() {
-        return k8s;
+    public String getClusterName() {
+        return clusterName;
     }
 
-    public void setK8s(String k8s) {
-        this.k8s = k8s;
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
     public String getNamespaceName() {
@@ -154,7 +154,7 @@ public class K8sNamespaceUser {
             "id=" + id +
             ", userId=" + userId +
             ", namespaceId=" + namespaceId +
-            ", k8s=" + k8s +
+            ", clusterName=" + clusterName +
             ", namespaceName=" + namespaceName +
             ", perm=" + perm +
             ", createTime=" + createTime +

@@ -34,6 +34,7 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper;
 import org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper;
+import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 import org.apache.dolphinscheduler.service.k8s.K8sManager;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -432,7 +433,12 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
 
         //k8s config not change,need not update
         if (!config.equals(ClusterConfUtils.getK8sConfig(clusterExist.getConfig()))) {
-            k8sManager.getAndUpdateK8sClient(code, true);
+            try {
+                k8sManager.getAndUpdateK8sClient(code, true);
+            } catch (RemotingException e) {
+                putMsg(result, Status.K8S_CLIENT_OPS_ERROR, name);
+                return result;
+            }
         }
 
         //

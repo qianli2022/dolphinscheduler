@@ -1968,7 +1968,7 @@ CREATE TABLE t_ds_cluster
 
 INSERT INTO `t_ds_cluster`
 (`id`,`code`,`name`,`config`,`description`,`operator`,`create_time`,`update_time`)
-VALUES (100, 100, 'cluster_k8s_test', '{"k8s":"ds_null_k8s"}', 'test', 1, '2021-03-03 11:31:24.0', '2021-03-03 11:31:24.0');
+VALUES (100, 100, 'ds_null_k8s', '{"k8s":"ds_null_k8s"}', 'test', 1, '2021-03-03 11:31:24.0', '2021-03-03 11:31:24.0');
 
 --
 -- Table structure for table t_ds_cluster_process_definition_relation

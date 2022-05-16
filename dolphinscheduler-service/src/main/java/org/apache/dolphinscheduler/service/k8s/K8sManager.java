@@ -55,7 +55,7 @@ public class K8sManager {
      * @param clusterCode
      * @return
      */
-    public synchronized KubernetesClient getK8sClient(Long clusterCode) {
+    public synchronized KubernetesClient getK8sClient(Long clusterCode) throws RemotingException {
         if (null == clusterCode) {
             return null;
         }
@@ -67,7 +67,7 @@ public class K8sManager {
      * @param clusterCode
      * @return new client if need updated
      */
-    public synchronized KubernetesClient getAndUpdateK8sClient(Long clusterCode, boolean update) {
+    public synchronized KubernetesClient getAndUpdateK8sClient(Long clusterCode, boolean update) throws RemotingException {
         if (null == clusterCode) {
             return null;
         }
@@ -99,7 +99,7 @@ public class K8sManager {
         }
     }
 
-    private void createK8sClientInner(Long clusterCode) {
+    private void createK8sClientInner(Long clusterCode) throws RemotingException {
         Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
         if (cluster == null) {
             return;
@@ -113,6 +113,7 @@ public class K8sManager {
                 clientMap.put(clusterCode, client);
             } catch (RemotingException e) {
                 logger.error("cluster code ={},fail to get k8s ApiClient:  {}", clusterCode, e.getMessage());
+                throw new RemotingException("fail to get k8s ApiClient:" + e.getMessage());
             }
         }
     }

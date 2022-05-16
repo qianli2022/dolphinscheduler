@@ -30,6 +30,7 @@ import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper;
 import org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
+import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 import org.apache.dolphinscheduler.service.k8s.K8sManager;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -142,7 +143,7 @@ public class ClusterServiceTest {
     }
 
     @Test
-    public void testUpdateClusterByCode() {
+    public void testUpdateClusterByCode() throws RemotingException {
         User loginUser = getGeneralUser();
         Map<String, Object> result = clusterService.updateClusterByCode(loginUser,1L,clusterName,getConfig(),getDesc());
         logger.info(result.toString());

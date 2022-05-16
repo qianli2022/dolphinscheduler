@@ -45,8 +45,8 @@
         <if test="namespace != null and namespace != ''">
             and namespace = #{namespace}
         </if>
-        <if test="k8s != null and k8s != ''">
-            and k8s =#{k8s}
+        <if test="clusterCode != null and clusterCode != ''">
+            and cluster_code =#{clusterCode}
         </if>
     </select>
 

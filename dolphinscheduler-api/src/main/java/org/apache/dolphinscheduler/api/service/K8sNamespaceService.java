@@ -45,12 +45,12 @@ public interface K8sNamespaceService {
      *
      * @param loginUser    login user
      * @param namespace    namespace
-     * @param k8s          k8s not null
+     * @param clusterCode  k8s not null
      * @param limitsCpu    limits cpu, can null means not limit
      * @param limitsMemory limits memory, can null means not limit
      * @return
      */
-    Map<String, Object> createK8sNamespace(User loginUser, String namespace, String k8s, Double limitsCpu, Integer limitsMemory);
+    Map<String, Object> createK8sNamespace(User loginUser, String namespace, Long clusterCode, Double limitsCpu, Integer limitsMemory);
 
 
     /**
@@ -71,7 +71,7 @@ public interface K8sNamespaceService {
      * @param k8s       k8s
      * @return true if the k8s and namespace not exists, otherwise return false
      */
-    Result<Object> verifyNamespaceK8s(String namespace, String k8s);
+    Result<Object> verifyNamespaceK8s(String namespace, Long clusterCode);
 
     /**
      * delete namespace by id

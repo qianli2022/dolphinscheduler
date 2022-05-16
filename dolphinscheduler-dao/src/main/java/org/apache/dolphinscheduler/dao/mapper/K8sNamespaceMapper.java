@@ -43,11 +43,11 @@ public interface K8sNamespaceMapper extends BaseMapper<K8sNamespace> {
     /**
      * check the target namespace exist
      *
-     * @param namespace namespace
-     * @param k8s       k8s name
+     * @param namespace   namespace
+     * @param clusterCode clusterCode
      * @return true if exist else return null
      */
-    Boolean existNamespace(@Param("namespace") String namespace, @Param("k8s") String k8s);
+    Boolean existNamespace(@Param("namespace") String namespace, @Param("clusterCode") Long clusterCode);
 
     /**
      * query namespace except userId
