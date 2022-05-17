@@ -22,7 +22,8 @@ import {
   NFormItem,
   NInput,
   NInputGroup,
-  NInputGroupLabel
+  NInputGroupLabel,
+  NSelect
 } from 'naive-ui'
 import { useModal } from './use-modal'
 import { useI18n } from 'vue-i18n'
@@ -45,13 +46,13 @@ const K8sNamespaceModal = defineComponent({
   },
   emits: ['cancelModal', 'confirmModal'],
   setup(props, ctx) {
-    const { variables, handleValidate } = useModal(props, ctx)
+    const { variables, handleValidate, getListData } = useModal(props, ctx)
     const { t } = useI18n()
 
     const cancelModal = () => {
       if (props.statusRef === 0) {
         variables.model.namespace = ''
-        variables.model.k8s = ''
+        variables.model.clusterCode = ''
         variables.model.limitsCpu = ''
         variables.model.limitsMemory = ''
         variables.model.userId = ''
@@ -64,18 +65,25 @@ const K8sNamespaceModal = defineComponent({
     }
 
     watch(
+      () => props.showModalRef,
+      () => {
+        props.showModalRef && getListData()
+      }
+    )
+
+    watch(
       () => props.statusRef,
       () => {
         if (props.statusRef === 0) {
           variables.model.namespace = ''
-          variables.model.k8s = ''
+          variables.model.clusterCode = ''
           variables.model.limitsCpu = ''
           variables.model.limitsMemory = ''
           variables.model.userId = ''
         } else {
           variables.model.id = props.row.id
           variables.model.namespace = props.row.namespace
-          variables.model.k8s = props.row.k8s
+          variables.model.clusterCode = props.row.clusterCode
           variables.model.limitsCpu = props.row.limitsCpu + ''
           variables.model.limitsMemory = props.row.limitsMemory + ''
           variables.model.userId = props.row.userId
@@ -88,7 +96,7 @@ const K8sNamespaceModal = defineComponent({
       () => {
         variables.model.id = props.row.id
         variables.model.namespace = props.row.namespace
-        variables.model.k8s = props.row.k8s
+        variables.model.clusterCode = props.row.clusterCode
         variables.model.limitsCpu = props.row.limitsCpu + ''
         variables.model.limitsMemory = props.row.limitsMemory + ''
         variables.model.userId = props.row.userId
@@ -110,7 +118,7 @@ const K8sNamespaceModal = defineComponent({
           show={this.showModalRef}
           onCancel={this.cancelModal}
           onConfirm={this.confirmModal}
-          confirmDisabled={!this.model.namespace || !this.model.k8s}
+          confirmDisabled={!this.model.namespace || !this.model.clusterCode}
           confirmLoading={this.saving}
         >
           {{
@@ -132,11 +140,12 @@ const K8sNamespaceModal = defineComponent({
                 </NFormItem>
                 <NFormItem
                   label={t('security.k8s_namespace.k8s_cluster')}
-                  path='k8s'
+                  path='clusterCode'
                 >
-                  <NInput
+                  <NSelect
                     placeholder={t('security.k8s_namespace.k8s_cluster_tips')}
-                    v-model={[this.model.k8s, 'value']}
+                    options={this.model.clusterOptions}
+                    v-model={[this.model.clusterCode, 'value']}
                     disabled={this.statusRef !== 0}
                   />
                 </NFormItem>
@@ -165,16 +174,6 @@ const K8sNamespaceModal = defineComponent({
                     />
                     <NInputGroupLabel>GB</NInputGroupLabel>
                   </NInputGroup>
-                </NFormItem>
-                <NFormItem
-                  label={t('security.k8s_namespace.owner')}
-                  path='userId'
-                >
-                  <NInput
-                    placeholder={t('security.k8s_namespace.owner_tips')}
-                    v-model={[this.model.userId, 'value']}
-                    disabled={this.statusRef !== 0}
-                  />
                 </NFormItem>
               </NForm>
             )
