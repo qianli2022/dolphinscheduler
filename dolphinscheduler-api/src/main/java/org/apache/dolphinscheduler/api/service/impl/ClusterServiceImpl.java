@@ -20,16 +20,15 @@ package org.apache.dolphinscheduler.api.service.impl;
 import org.apache.dolphinscheduler.api.dto.ClusterDto;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.service.ClusterService;
-import org.apache.dolphinscheduler.api.service.K8sNamespaceService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.utils.ClusterConfUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils.CodeGenerateException;
-import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.Cluster;
 import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
+import org.apache.dolphinscheduler.dao.entity.K8sNamespace;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper;
@@ -38,7 +37,6 @@ import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 import org.apache.dolphinscheduler.service.k8s.K8sManager;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -48,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -59,10 +56,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * cluster definition service impl
@@ -81,18 +76,16 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     @Autowired
     private K8sManager k8sManager;
 
-//    @Autowired
-//    private K8sNamespaceService k8sNamespaceService;
-
     @Autowired
     private K8sNamespaceMapper k8sNamespaceMapper;
+
     /**
      * create cluster
      *
-     * @param loginUser          login user
-     * @param name               cluster name
-     * @param config             cluster config
-     * @param desc               cluster desc
+     * @param loginUser login user
+     * @param name      cluster name
+     * @param config    cluster config
+     * @param desc      cluster desc
      */
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
@@ -287,6 +280,14 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
             return result;
         }
 
+        Integer relatedNamespaceNumber = k8sNamespaceMapper
+            .selectCount(new QueryWrapper<K8sNamespace>().lambda().eq(K8sNamespace::getClusterCode, code));
+
+        if (relatedNamespaceNumber > 0) {
+            putMsg(result, Status.DELETE_CLUSTER_RELATED_NAMESPACE_EXISTS);
+            return result;
+        }
+
         int delete = clusterMapper.deleteByCode(code);
         if (delete > 0) {
             relationMapper.delete(new QueryWrapper<ClusterProcessDefinitionRelation>()
@@ -299,93 +300,6 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         return result;
     }
 
-//    /**
-//     * update cluster
-//     *
-//     * @param loginUser          login user
-//     * @param code               cluster code
-//     * @param name               cluster name
-//     * @param config             cluster config
-//     * @param desc               cluster desc
-//     * @param processDefinitions worker groups
-//     */
-//    @Transactional(rollbackFor = RuntimeException.class)
-//    @Override
-//    public Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String processDefinitions) {
-//        Map<String, Object> result = new HashMap<>();
-//        if (isNotAdmin(loginUser, result)) {
-//            return result;
-//        }
-//
-//        Map<String, Object> checkResult = checkParams(name, config);
-//        if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
-//            return checkResult;
-//        }
-//
-//        Cluster cluster = clusterMapper.queryByClusterName(name);
-//        if (cluster != null && !cluster.getCode().equals(code)) {
-//            putMsg(result, Status.CLUSTER_NAME_EXISTS, name);
-//            return result;
-//        }
-//
-//        Set<String> processDefinitionSet;
-//        if (!StringUtils.isEmpty(processDefinitions)) {
-//            processDefinitionSet = JSONUtils.parseObject(processDefinitions, new TypeReference<Set<String>>() {
-//            });
-//        } else {
-//            processDefinitionSet = new TreeSet<>();
-//        }
-//
-//        Set<String> existProcessDefinitionSet = relationMapper
-//            .queryByClusterCode(code)
-//            .stream()
-//            .map(item -> item.getProcessDefinition())
-//            .collect(Collectors.toSet());
-//
-//        Set<String> deleteProcessDefinitionSet = SetUtils.difference(existProcessDefinitionSet, processDefinitionSet).toSet();
-//        Set<String> addProcessDefinitionSet = SetUtils.difference(processDefinitionSet, existProcessDefinitionSet).toSet();
-//
-//        // verify whether the relation of this cluster and worker groups can be adjusted
-//        checkResult = checkUsedClusterProcessDefinitionRelation(deleteProcessDefinitionSet, name, code);
-//        if (checkResult.get(Constants.STATUS) != Status.SUCCESS) {
-//            return checkResult;
-//        }
-//
-//        Cluster cluster = new Cluster();
-//        cluster.setCode(code);
-//        cluster.setName(name);
-//        cluster.setConfig(config);
-//        cluster.setDescription(desc);
-//        cluster.setOperator(loginUser.getId());
-//        cluster.setUpdateTime(new Date());
-//
-//        int update = clusterMapper.update(cluster, new UpdateWrapper<Cluster>().lambda().eq(Cluster::getCode, code));
-//        if (update > 0) {
-//            deleteProcessDefinitionSet.stream().forEach(key -> {
-//                if (StringUtils.isNotEmpty(key)) {
-//                    relationMapper.delete(new QueryWrapper<ClusterProcessDefinitionRelation>()
-//                        .lambda()
-//                        .eq(ClusterProcessDefinitionRelation::getClusterCode, code)
-//                        .eq(ClusterProcessDefinitionRelation::getProcessDefinition, key));
-//                }
-//            });
-//            addProcessDefinitionSet.stream().forEach(key -> {
-//                if (StringUtils.isNotEmpty(key)) {
-//                    ClusterProcessDefinitionRelation relation = new ClusterProcessDefinitionRelation();
-//                    relation.setClusterCode(code);
-//                    relation.setProcessDefinition(key);
-//                    relation.setUpdateTime(new Date());
-//                    relation.setCreateTime(new Date());
-//                    relation.setOperator(loginUser.getId());
-//                    relationMapper.insert(relation);
-//                }
-//            });
-//            putMsg(result, Status.SUCCESS);
-//        } else {
-//            putMsg(result, Status.UPDATE_CLUSTER_ERROR, name);
-//        }
-//        return result;
-//    }
 
     /**
      * update cluster
@@ -422,7 +336,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         }
 
         //need update namespace name
-        if(!clusterExist.getName().equals(name)) {
+        if (!clusterExist.getName().equals(name)) {
             k8sNamespaceMapper.updateNamespaceClusterName(clusterExist.getCode(), clusterExist.getName());
         }
         //update cluster
@@ -441,7 +355,6 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
             }
         }
 
-        //
         putMsg(result, Status.SUCCESS);
         return result;
     }

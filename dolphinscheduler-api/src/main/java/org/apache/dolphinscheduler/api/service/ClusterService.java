@@ -31,9 +31,9 @@ public interface ClusterService {
      * create cluster
      *
      * @param loginUser login user
-     * @param name cluster name
-     * @param config cluster config
-     * @param desc cluster desc
+     * @param name      cluster name
+     * @param config    cluster config
+     * @param desc      cluster desc
      */
     Map<String, Object> createCluster(User loginUser, String name, String config, String desc);
 
@@ -51,44 +51,31 @@ public interface ClusterService {
      */
     Map<String, Object> queryClusterByCode(Long code);
 
-
     /**
      * delete cluster
      *
      * @param loginUser login user
-     * @param code cluster code
+     * @param code      cluster code
      */
     Map<String, Object> deleteClusterByCode(User loginUser, Long code);
-
-//    /**
-//     * update cluster
-//     *
-//     * @param loginUser login user
-//     * @param code cluster code
-//     * @param name cluster name
-//     * @param config cluster config
-//     * @param desc cluster desc
-//     * @param workerGroups worker groups
-//     */
-//    Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc, String workerGroups);
 
     /**
      * update cluster
      *
      * @param loginUser login user
-     * @param code cluster code
-     * @param name cluster name
-     * @param config cluster config
-     * @param desc cluster desc
+     * @param code      cluster code
+     * @param name      cluster name
+     * @param config    cluster config
+     * @param desc      cluster desc
      */
     Map<String, Object> updateClusterByCode(User loginUser, Long code, String name, String config, String desc);
 
     /**
      * query cluster paging
      *
-     * @param pageNo page number
+     * @param pageNo    page number
      * @param searchVal search value
-     * @param pageSize page size
+     * @param pageSize  page size
      * @return cluster list page
      */
     Result queryClusterListPaging(Integer pageNo, Integer pageSize, String searchVal);

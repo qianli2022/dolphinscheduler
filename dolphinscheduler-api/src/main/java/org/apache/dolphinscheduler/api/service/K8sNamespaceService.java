@@ -28,6 +28,7 @@ import java.util.Map;
  * k8s namespace service impl
  */
 public interface K8sNamespaceService {
+
     /**
      * query namespace list paging
      *
@@ -38,7 +39,6 @@ public interface K8sNamespaceService {
      * @return k8s namespace list
      */
     Result queryListPaging(User loginUser, String searchVal, Integer pageNo, Integer pageSize);
-
 
     /**
      * create namespace,if not exist on k8s,will create,if exist only register in db
@@ -51,7 +51,6 @@ public interface K8sNamespaceService {
      * @return
      */
     Map<String, Object> createK8sNamespace(User loginUser, String namespace, Long clusterCode, Double limitsCpu, Integer limitsMemory);
-
 
     /**
      * update K8s Namespace tag and resource limit
@@ -67,8 +66,8 @@ public interface K8sNamespaceService {
     /**
      * verify namespace and k8s
      *
-     * @param namespace namespace
-     * @param k8s       k8s
+     * @param namespace   namespace
+     * @param clusterCode cluster code
      * @return true if the k8s and namespace not exists, otherwise return false
      */
     Result<Object> verifyNamespaceK8s(String namespace, Long clusterCode);

@@ -165,9 +165,9 @@ public class K8sNamespaceController extends BaseController {
     /**
      * verify namespace and k8s,one k8s namespace is unique
      *
-     * @param loginUser login user
-     * @param namespace namespace
-     * @param k8s       k8s
+     * @param loginUser   login user
+     * @param namespace   namespace
+     * @param clusterCode cluster code
      * @return true if the k8s and namespace not exists, otherwise return false
      */
     @ApiOperation(value = "verifyNamespaceK8s", notes = "VERIFY_NAMESPACE_K8S_NOTES")

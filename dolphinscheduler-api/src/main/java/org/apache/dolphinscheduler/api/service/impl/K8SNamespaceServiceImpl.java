@@ -65,10 +65,13 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
         + "  hard:\n"
         + "    ${limitCpu}\n"
         + "    ${limitMemory}\n";
+
     @Autowired
     private K8sNamespaceMapper k8sNamespaceMapper;
+
     @Autowired
     private K8sClientService k8sClientService;
+
     @Autowired
     private ClusterMapper clusterMapper;
 
@@ -146,8 +149,7 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
         }
 
         Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
-        if(cluster == null)
-        {
+        if (cluster == null) {
             putMsg(result, Status.CLUSTER_NOT_EXISTS, namespace, clusterCode);
             return result;
         }
@@ -242,7 +244,7 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
      * verify namespace and k8s
      *
      * @param namespace   namespace
-     * @param clusterCode clusterCode
+     * @param clusterCode cluster code
      * @return true if the k8s and namespace not exists, otherwise return false
      */
     @Override
