@@ -30,28 +30,36 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ClusterProcessDefinitionRelationMapper extends BaseMapper<ClusterProcessDefinitionRelation> {
 
-    /**
-     * cluster process definition relation by clusterCode
-     *
-     * @param clusterCode clusterCode
-     * @return ClusterProcessDefinitionRelation list
-     */
-    List<ClusterProcessDefinitionRelation> queryByClusterCode(@Param("clusterCode") Long clusterCode);
 
     /**
-     * cluster process definition relation by processDefinitionName
+     * query by unique key
      *
-     * @param processDefinitionName processDefinitionName
-     * @return ClusterProcessDefinitionRelation list
+     * @param clusterCode
+     * @param processDefinitionCode
+     * @param processDefinitionVersion
+     * @return
      */
-    List<ClusterProcessDefinitionRelation> queryByProcessDefinitionName(@Param("processDefinitionName") String processDefinitionName);
+    ClusterProcessDefinitionRelation queryByUniqueKey(@Param("clusterCode") Long clusterCode,
+                                                      @Param("clusterCode") Long processDefinitionCode,
+                                                      @Param("processDefinitionVersion") Integer processDefinitionVersion);
 
     /**
-     * delete cluster process definition relation by processCode
+     * query by process
      *
-     * @param clusterCode clusterCode
-     * @param processDefinitionName processDefinitionName
-     * @return int
+     * @param processDefinitionCode
+     * @param processDefinitionVersion
+     * @return
      */
-    int deleteByCode(@Param("clusterCode") Long clusterCode, @Param("processDefinitionName") String processDefinitionName);
+    List<ClusterProcessDefinitionRelation> queryByProcessCodeAndVersion(@Param("processDefinitionCode") Long processDefinitionCode,
+                                                                        @Param("processDefinitionVersion") Integer processDefinitionVersion);
+
+    /**
+     * delete by process
+     *
+     * @param processDefinitionCode
+     * @param processDefinitionVersion
+     * @return
+     */
+    int deleteByProcessVersionAndCode(@Param("processDefinitionCode") Long processDefinitionCode,
+                                      @Param("processDefinitionVersion") Integer processDefinitionVersion);
 }

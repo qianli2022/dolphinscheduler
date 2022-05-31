@@ -18,8 +18,11 @@
 package org.apache.dolphinscheduler.api.service;
 
 import org.apache.dolphinscheduler.api.utils.Result;
+import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
+import org.apache.dolphinscheduler.dao.entity.K8sNamespace;
 import org.apache.dolphinscheduler.dao.entity.User;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,5 +98,14 @@ public interface ClusterService {
      */
     Map<String, Object> verifyCluster(String clusterName);
 
+
+    /**
+     * process related clusters
+     *
+     * @param processCode
+     * @param processVersion
+     * @return
+     */
+    Map<String, Object> queryClusterListByProcessCodeVersion(Long processCode, Integer processVersion);
 }
 

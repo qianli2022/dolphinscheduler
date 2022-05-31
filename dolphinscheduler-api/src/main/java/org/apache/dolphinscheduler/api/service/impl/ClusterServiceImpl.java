@@ -17,7 +17,6 @@
 
 package org.apache.dolphinscheduler.api.service.impl;
 
-import org.apache.dolphinscheduler.api.dto.ClusterDto;
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.service.ClusterService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
@@ -39,18 +38,15 @@ import org.apache.dolphinscheduler.service.k8s.K8sManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,26 +146,9 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
 
         IPage<Cluster> clusterIPage = clusterMapper.queryClusterListPaging(page, searchVal);
 
-        PageInfo<ClusterDto> pageInfo = new PageInfo<>(pageNo, pageSize);
+        PageInfo<Cluster> pageInfo = new PageInfo<>(pageNo, pageSize);
         pageInfo.setTotal((int) clusterIPage.getTotal());
-
-        if (CollectionUtils.isNotEmpty(clusterIPage.getRecords())) {
-            Map<Long, List<String>> relationMap = relationMapper.selectList(null).stream()
-                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode, Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition, Collectors.toList())));
-
-            List<ClusterDto> dtoList = clusterIPage.getRecords().stream().map(cluster -> {
-                ClusterDto dto = new ClusterDto();
-                BeanUtils.copyProperties(cluster, dto);
-                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(), new ArrayList<String>());
-                dto.setProcessDefinitions(processDefinitions);
-                return dto;
-            }).collect(Collectors.toList());
-
-            pageInfo.setTotalList(dtoList);
-        } else {
-            pageInfo.setTotalList(new ArrayList<>());
-        }
-
+        pageInfo.setTotalList(clusterIPage.getRecords());
         result.setData(pageInfo);
         putMsg(result, Status.SUCCESS);
         return result;
@@ -184,23 +163,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
     public Map<String, Object> queryAllClusterList() {
         Map<String, Object> result = new HashMap<>();
         List<Cluster> clusterList = clusterMapper.queryAllClusterList();
-
-        if (CollectionUtils.isNotEmpty(clusterList)) {
-            Map<Long, List<String>> relationMap = relationMapper.selectList(null).stream()
-                .collect(Collectors.groupingBy(ClusterProcessDefinitionRelation::getClusterCode, Collectors.mapping(ClusterProcessDefinitionRelation::getProcessDefinition, Collectors.toList())));
-
-            List<ClusterDto> dtoList = clusterList.stream().map(cluster -> {
-                ClusterDto dto = new ClusterDto();
-                BeanUtils.copyProperties(cluster, dto);
-                List<String> processDefinitions = relationMap.getOrDefault(cluster.getCode(), new ArrayList<String>());
-                dto.setProcessDefinitions(processDefinitions);
-                return dto;
-            }).collect(Collectors.toList());
-            result.put(Constants.DATA_LIST, dtoList);
-        } else {
-            result.put(Constants.DATA_LIST, new ArrayList<>());
-        }
-
+        result.put(Constants.DATA_LIST, clusterList);
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -215,18 +178,10 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         Map<String, Object> result = new HashMap<>();
 
         Cluster cluster = clusterMapper.queryByClusterCode(code);
-
         if (cluster == null) {
             putMsg(result, Status.QUERY_CLUSTER_BY_CODE_ERROR, code);
         } else {
-            List<String> processDefinitions = relationMapper.queryByClusterCode(cluster.getCode()).stream()
-                .map(item -> item.getProcessDefinition())
-                .collect(Collectors.toList());
-
-            ClusterDto dto = new ClusterDto();
-            BeanUtils.copyProperties(cluster, dto);
-            dto.setProcessDefinitions(processDefinitions);
-            result.put(Constants.DATA_LIST, dto);
+            result.put(Constants.DATA_LIST, cluster);
             putMsg(result, Status.SUCCESS);
         }
         return result;
@@ -245,14 +200,7 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         if (cluster == null) {
             putMsg(result, Status.QUERY_CLUSTER_BY_NAME_ERROR, name);
         } else {
-            List<String> processDefinitions = relationMapper.queryByClusterCode(cluster.getCode()).stream()
-                .map(item -> item.getProcessDefinition())
-                .collect(Collectors.toList());
-
-            ClusterDto dto = new ClusterDto();
-            BeanUtils.copyProperties(cluster, dto);
-            dto.setProcessDefinitions(processDefinitions);
-            result.put(Constants.DATA_LIST, dto);
+            result.put(Constants.DATA_LIST, cluster);
             putMsg(result, Status.SUCCESS);
         }
         return result;
@@ -272,13 +220,13 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
             return result;
         }
 
-        Integer relatedProcessNumber = relationMapper
-            .selectCount(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda().eq(ClusterProcessDefinitionRelation::getClusterCode, code));
-
-        if (relatedProcessNumber > 0) {
-            putMsg(result, Status.DELETE_CLUSTER_RELATED_TASK_EXISTS);
-            return result;
-        }
+//        Integer relatedProcessNumber = relationMapper
+//            .selectCount(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda().eq(ClusterProcessDefinitionRelation::getClusterCode, code));
+//
+//        if (relatedProcessNumber > 0) {
+//            putMsg(result, Status.DELETE_CLUSTER_RELATED_TASK_EXISTS);
+//            return result;
+//        }
 
         Integer relatedNamespaceNumber = k8sNamespaceMapper
             .selectCount(new QueryWrapper<K8sNamespace>().lambda().eq(K8sNamespace::getClusterCode, code));
@@ -346,7 +294,8 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         //need not update relation
 
         //k8s config not change,need not update
-        if (!config.equals(ClusterConfUtils.getK8sConfig(clusterExist.getConfig()))) {
+        if (!Constants.K8S_LOCAL_TEST_CLUSTER.equals(name)
+            && !config.equals(ClusterConfUtils.getK8sConfig(clusterExist.getConfig()))) {
             try {
                 k8sManager.getAndUpdateK8sClient(code, true);
             } catch (RemotingException e) {
@@ -384,16 +333,41 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         return result;
     }
 
+    @Override
+    public Map<String, Object> queryClusterListByProcessCodeVersion(Long processCode, Integer processVersion) {
+        QueryWrapper<ClusterProcessDefinitionRelation> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("process_definition_code", processCode)
+            .eq("process_definition_version", processVersion);
+
+        List<ClusterProcessDefinitionRelation> clusterProcessDefinitionRelationList = relationMapper.selectList(queryWrapper);
+        if (CollectionUtils.isNotEmpty(clusterProcessDefinitionRelationList)) {
+            List<Cluster> clusterList = clusterMapper.queryAllClusterList();
+            Map<Long, String> clusterCodeNameMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(clusterList)) {
+                for (Cluster cluster : clusterList) {
+                    clusterCodeNameMap.put(cluster.getCode(), cluster.getName());
+                }
+            }
+            for (ClusterProcessDefinitionRelation relation : clusterProcessDefinitionRelationList) {
+                relation.setClusterName(clusterCodeNameMap.get(relation.getClusterCode()));
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put(Constants.DATA_LIST, clusterProcessDefinitionRelationList);
+
+        return result;
+    }
+
     private Map<String, Object> checkUsedClusterProcessDefinitionRelation(Set<String> deleteKeySet, String clusterName, Long clusterCode) {
         Map<String, Object> result = new HashMap<>();
         for (String processDefinition : deleteKeySet) {
             ClusterProcessDefinitionRelation clusterProcessDefinitionRelation = relationMapper
                 .selectOne(new QueryWrapper<ClusterProcessDefinitionRelation>().lambda()
                     .eq(ClusterProcessDefinitionRelation::getClusterCode, clusterCode)
-                    .eq(ClusterProcessDefinitionRelation::getProcessDefinition, processDefinition));
+                    .eq(ClusterProcessDefinitionRelation::getProcessDefinitionCode, processDefinition));
 
             if (Objects.nonNull(clusterProcessDefinitionRelation)) {
-                putMsg(result, Status.UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR, processDefinition, clusterName, clusterProcessDefinitionRelation.getProcessDefinition());
+                putMsg(result, Status.UPDATE_CLUSTER_PROCESS_DEFINITION_RELATION_ERROR, processDefinition, clusterName, clusterProcessDefinitionRelation.getProcessDefinitionCode());
                 return result;
             }
         }

@@ -17,9 +17,12 @@
 
 package org.apache.dolphinscheduler.dao.entity;
 
+import org.apache.dolphinscheduler.common.enums.ReleaseState;
+
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -38,14 +41,30 @@ public class ClusterProcessDefinitionRelation {
     private Long clusterCode;
 
     /**
-     * worker group id
+     * cluster name
      */
-    private String processDefinition;
+    @TableField(exist = false)
+    private String clusterName;
 
     /**
-     * operator user id
+     * process definition code
      */
-    private Integer operator;
+    private Long processDefinitionCode;
+
+    /**
+     * process definition version
+     */
+    private int processDefinitionVersion;
+
+    /**
+     * cluster parameters,json,overwrite process clusterParams
+     */
+    private String clusterParams;
+
+    /**
+     * release state : online/offline,need set process state too
+     */
+    private ReleaseState releaseState;
 
     private Date createTime;
 
@@ -59,12 +78,12 @@ public class ClusterProcessDefinitionRelation {
         this.id = id;
     }
 
-    public String getProcessDefinition() {
-        return processDefinition;
+    public Long getProcessDefinitionCode() {
+        return processDefinitionCode;
     }
 
-    public void setProcessDefinition(String processDefinition) {
-        this.processDefinition = processDefinition;
+    public void setProcessDefinitionCode(Long processDefinitionCode) {
+        this.processDefinitionCode = processDefinitionCode;
     }
 
     public Long getClusterCode() {
@@ -73,14 +92,6 @@ public class ClusterProcessDefinitionRelation {
 
     public void setClusterCode(Long clusterCode) {
         this.clusterCode = clusterCode;
-    }
-
-    public Integer getOperator() {
-        return this.operator;
-    }
-
-    public void setOperator(Integer operator) {
-        this.operator = operator;
     }
 
     public Date getCreateTime() {
@@ -102,13 +113,46 @@ public class ClusterProcessDefinitionRelation {
     @Override
     public String toString() {
         return "ClusterProcessDefinitionRelation{"
-                + "id= " + id
-                + ", clusterCode= " + clusterCode
-                + ", processDefinition= " + processDefinition
-                + ", operator= " + operator
-                + ", createTime= " + createTime
-                + ", updateTime= " + updateTime
-                + "}";
+            + "id= " + id
+            + ", clusterCode= " + clusterCode
+            + ", processDefinitionCode= " + processDefinitionCode
+            + ", processDefinitionVersion= " + processDefinitionVersion
+            + ", clusterParams= " + clusterParams
+            + ", releaseState= " + releaseState
+            + ", createTime= " + createTime
+            + ", updateTime= " + updateTime
+            + "}";
     }
 
+    public int getProcessDefinitionVersion() {
+        return processDefinitionVersion;
+    }
+
+    public void setProcessDefinitionVersion(int processDefinitionVersion) {
+        this.processDefinitionVersion = processDefinitionVersion;
+    }
+
+    public String getClusterParams() {
+        return clusterParams;
+    }
+
+    public void setClusterParams(String clusterParams) {
+        this.clusterParams = clusterParams;
+    }
+
+    public ReleaseState getReleaseState() {
+        return releaseState;
+    }
+
+    public void setReleaseState(ReleaseState releaseState) {
+        this.releaseState = releaseState;
+    }
+
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
 }

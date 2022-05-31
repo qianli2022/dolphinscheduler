@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.api.service;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.enums.ProcessExecutionTypeEnum;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
+import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinitionLog;
 import org.apache.dolphinscheduler.dao.entity.User;
 
@@ -414,7 +415,9 @@ public interface ProcessDefinitionService {
                                                          int timeout,
                                                          String tenantCode,
                                                          String scheduleJson,
-                                                         ProcessExecutionTypeEnum executionType);
+                                                         ProcessExecutionTypeEnum executionType,
+                                                         String clusterParams,
+                                                         List<ClusterProcessDefinitionRelation> clusterLists);
 
     /**
      * release process definition and schedule

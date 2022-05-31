@@ -19,22 +19,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.apache.dolphinscheduler.dao.mapper.ClusterProcessDefinitionRelationMapper">
     <sql id="baseSql">
-        id, cluster_code, process_definition, operator, create_time, update_time
+        id, cluster_code, process_definition_code, process_definition_version, cluster_params, release_state, create_time, update_time
     </sql>
-    <select id="queryByClusterCode" resultType="org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation">
+
+    <select id="queryByUniqueKey" resultType="org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation">
         select
         <include refid="baseSql"/>
         from t_ds_cluster_process_definition_relation
-        WHERE cluster_code = #{clusterCode}
+        WHERE cluster_code = #{clusterCode} and process_definition_code = #{processDefinitionCode} and process_definition_version = #{processDefinitionVersion}
     </select>
-    <select id="queryByProcessDefinitionName" resultType="org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation">
+
+    <select id="queryByProcessCodeAndVersion" resultType="org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation">
         select
         <include refid="baseSql"/>
         from t_ds_cluster_process_definition_relation
-        WHERE process_definition = #{processDefinitionName}
+        WHERE process_definition_code = #{processDefinitionCode} and process_definition_version = #{processDefinitionVersion}
     </select>
     <delete id="deleteByCode">
         delete from t_ds_cluster_process_definition_relation
-        WHERE cluster_code = #{clusterCode} and process_definition = #{processDefinitionName}
+        WHERE process_definition_code = #{processDefinitionCode} and process_definition_version = #{processDefinitionVersion}
     </delete>
 </mapper>

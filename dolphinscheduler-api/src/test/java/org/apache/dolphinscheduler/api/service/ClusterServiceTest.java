@@ -236,12 +236,12 @@ public class ClusterServiceTest {
         Assert.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
 
         loginUser = getAdminUser();
-        Mockito.when(relationMapper.selectCount(Mockito.any(LambdaQueryWrapper.class))).thenReturn(1);
-        result = clusterService.deleteClusterByCode(loginUser,1L);
-        logger.info(result.toString());
-        Assert.assertEquals(Status.DELETE_CLUSTER_RELATED_TASK_EXISTS, result.get(Constants.STATUS));
+//        Mockito.when(relationMapper.selectCount(Mockito.any(LambdaQueryWrapper.class))).thenReturn(1);
+//        result = clusterService.deleteClusterByCode(loginUser,1L);
+//        logger.info(result.toString());
+//        Assert.assertEquals(Status.DELETE_CLUSTER_RELATED_TASK_EXISTS, result.get(Constants.STATUS));
 
-        Mockito.when(relationMapper.selectCount(Mockito.any(LambdaQueryWrapper.class))).thenReturn(0);
+//        Mockito.when(relationMapper.selectCount(Mockito.any(LambdaQueryWrapper.class))).thenReturn(0);
         Mockito.when(clusterMapper.deleteByCode(1L)).thenReturn(1);
         result = clusterService.deleteClusterByCode(loginUser,1L);
         logger.info(result.toString());

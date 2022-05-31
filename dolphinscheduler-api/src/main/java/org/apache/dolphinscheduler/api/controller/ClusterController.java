@@ -234,4 +234,22 @@ public class ClusterController extends BaseController {
         Map<String, Object> result = clusterService.verifyCluster(clusterName);
         return returnDataList(result);
     }
+
+    /**
+     * query all cluster list
+     *
+     * @param loginUser login user
+     * @return all cluster list
+     */
+    @ApiOperation(value = "queryClusterListProcess", notes = "QUERY_CLUSTER_LIST_PROCESS_NOTES")
+    @GetMapping(value = "/query-cluster-list-process")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(QUERY_CLUSTER_ERROR)
+    @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
+    public Result queryClusterListByProcessCodeVersion(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                                   @RequestParam(value = "processCode") Long processCode,
+                                                   @RequestParam(value = "processVersion") Integer processVersion) {
+        Map<String, Object> result = clusterService.queryAllClusterList();
+        return returnDataList(result);
+    }
 }

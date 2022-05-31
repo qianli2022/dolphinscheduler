@@ -59,8 +59,8 @@ public class ClusterProcessDefinitionRelationMapperTest extends BaseDaoTest {
         //insertOne
         ClusterProcessDefinitionRelation relation = new ClusterProcessDefinitionRelation();
         relation.setClusterCode(1L);
-        relation.setProcessDefinition("default");
-        relation.setOperator(1);
+        relation.setProcessDefinitionCode(1L);
+        relation.setProcessDefinitionVersion(1);
         relation.setUpdateTime(new Date());
         relation.setCreateTime(new Date());
         clusterProcessDefinitionRelationMapper.insert(relation);

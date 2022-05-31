@@ -26,6 +26,7 @@ import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.enums.ProcessExecutionTypeEnum;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
 import org.apache.dolphinscheduler.common.utils.ParameterUtils;
+import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.User;
 
@@ -806,9 +807,12 @@ public class ProcessDefinitionController extends BaseController {
                                                    @RequestParam(value = "tenantCode", required = true) String tenantCode,
                                                    @RequestParam(value = "scheduleJson", required = false) String scheduleJson,
                                                    @RequestParam(value = "executionType", defaultValue = "PARALLEL") ProcessExecutionTypeEnum executionType,
-                                                   @RequestParam(value = "releaseState", required = false, defaultValue = "OFFLINE") ReleaseState releaseState) {
+                                                   @RequestParam(value = "releaseState", required = false, defaultValue = "OFFLINE") ReleaseState releaseState,
+                                                   @RequestParam(value = "clusterParams", required = false) String clusterParams,
+                                                   @RequestParam(value = "clusterLists", required = false) List<ClusterProcessDefinitionRelation> clusterLists
+                                                   ) {
         Map<String, Object> result = processDefinitionService.updateProcessDefinitionBasicInfo(loginUser, projectCode, name, code, description, globalParams,
-            timeout, tenantCode, scheduleJson, executionType);
+            timeout, tenantCode, scheduleJson, executionType, clusterParams, clusterLists);
         //  If the update fails, the result will be returned directly
         if (result.get(Constants.STATUS) != Status.SUCCESS) {
             return returnDataList(result);
@@ -846,4 +850,20 @@ public class ProcessDefinitionController extends BaseController {
                                              @RequestParam(value = "releaseState", required = true, defaultValue = "OFFLINE") ReleaseState releaseState) {
         return returnDataList(processDefinitionService.releaseWorkflowAndSchedule(loginUser, projectCode, code, releaseState));
     }
+
+//    /**
+//     * query all cluster list
+//     *
+//     * @param loginUser login user
+//     * @return all cluster list
+//     */
+//    @ApiOperation(value = "queryAllClusterList", notes = "QUERY_ALL_CLUSTER_LIST_NOTES")
+//    @GetMapping(value = "/query-cluster-list")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ApiException(QUERY_ENVIRONMENT_ERROR)
+//    @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
+//    public Result queryAllCLusterList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
+//        Map<String, Object> result = environmentService.queryAllEnvironmentList();
+//        return returnDataList(result);
+//    }
 }

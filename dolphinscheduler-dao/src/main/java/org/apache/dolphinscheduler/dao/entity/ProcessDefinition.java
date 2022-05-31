@@ -168,6 +168,17 @@ public class ProcessDefinition {
     private int warningGroupId;
 
     /**
+     * cluster parameters
+     */
+    private String clusterParams;
+
+    /**
+     * user define parameter map
+     */
+    @TableField(exist = false)
+    private Map<String, String> clusterParamMap;
+
+    /**
      * execution type
      */
     private ProcessExecutionTypeEnum executionType;
@@ -457,6 +468,15 @@ public class ProcessDefinition {
             + ", tenantCode='" + tenantCode + '\''
             + ", modifyBy='" + modifyBy + '\''
             + ", warningGroupId=" + warningGroupId
+            + ", clusterParams=" + clusterParams
             + '}';
+    }
+
+    public String getClusterParams() {
+        return clusterParams;
+    }
+
+    public void setClusterParams(String clusterParams) {
+        this.clusterParams = clusterParams;
     }
 }

@@ -43,6 +43,7 @@ import org.apache.dolphinscheduler.common.enums.Flag;
 import org.apache.dolphinscheduler.common.enums.Priority;
 import org.apache.dolphinscheduler.common.enums.ProcessExecutionTypeEnum;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
+import org.apache.dolphinscheduler.dao.entity.ClusterProcessDefinitionRelation;
 import org.apache.dolphinscheduler.dao.entity.DependentSimplifyDefinition;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskTimeoutStrategy;
 import org.apache.dolphinscheduler.common.enums.TimeoutFlag;
@@ -2064,7 +2065,9 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                                                                 int timeout,
                                                                 String tenantCode,
                                                                 String scheduleJson,
-                                                                ProcessExecutionTypeEnum executionType) {
+                                                                ProcessExecutionTypeEnum executionType,
+                                                                String clusterParams,
+                                                                List<ClusterProcessDefinitionRelation> clusterLists) {
         Project project = projectMapper.queryByCode(projectCode);
         //check user access for project
         Map<String, Object> result = projectService.checkProjectAndAuth(loginUser, project, projectCode);

@@ -420,6 +420,7 @@ CREATE TABLE t_ds_process_definition
     timeout          int(11) DEFAULT '0',
     tenant_id        int(11) NOT NULL DEFAULT '-1',
     execution_type   tinyint(4) DEFAULT '0',
+    cluster_params   text,
     create_time      datetime NOT NULL,
     update_time      datetime     DEFAULT NULL,
     PRIMARY KEY (id),
