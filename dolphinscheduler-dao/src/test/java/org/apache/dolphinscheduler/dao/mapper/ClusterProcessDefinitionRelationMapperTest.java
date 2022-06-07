@@ -78,24 +78,24 @@ public class ClusterProcessDefinitionRelationMapperTest extends BaseDaoTest {
         Assert.assertEquals(relations.size(), 1);
     }
 
-    @Test
-    public void testQueryByClusterCode() {
-        ClusterProcessDefinitionRelation relation = insertOne();
-        List<ClusterProcessDefinitionRelation> clusterProcessDefinitionRelations = clusterProcessDefinitionRelationMapper.queryByClusterCode(1L);
-        Assert.assertNotEquals(clusterProcessDefinitionRelations.size(), 0);
-    }
-
-    @Test
-    public void testQueryByProcessDefinitionName() {
-        ClusterProcessDefinitionRelation relation = insertOne();
-        List<ClusterProcessDefinitionRelation> clusterProcessDefinitionRelations = clusterProcessDefinitionRelationMapper.queryByProcessDefinitionName("default");
-        Assert.assertNotEquals(clusterProcessDefinitionRelations.size(), 0);
-    }
-
-    @Test
-    public void testDeleteByCode() {
-        ClusterProcessDefinitionRelation relation = insertOne();
-        int i = clusterProcessDefinitionRelationMapper.deleteByCode(1L, "default");
-        Assert.assertNotEquals(i, 0);
-    }
+//    @Test
+//    public void testQueryByClusterCode() {
+//        ClusterProcessDefinitionRelation relation = insertOne();
+//        List<ClusterProcessDefinitionRelation> clusterProcessDefinitionRelations = clusterProcessDefinitionRelationMapper.queryByClusterCode(1L);
+//        Assert.assertNotEquals(clusterProcessDefinitionRelations.size(), 0);
+//    }
+//
+//    @Test
+//    public void testQueryByProcessDefinitionName() {
+//        ClusterProcessDefinitionRelation relation = insertOne();
+//        List<ClusterProcessDefinitionRelation> clusterProcessDefinitionRelations = clusterProcessDefinitionRelationMapper.queryByProcessDefinitionName("default");
+//        Assert.assertNotEquals(clusterProcessDefinitionRelations.size(), 0);
+//    }
+//
+//    @Test
+//    public void testDeleteByCode() {
+//        ClusterProcessDefinitionRelation relation = insertOne();
+//        int i = clusterProcessDefinitionRelationMapper.deleteByCode(1L, "default");
+//        Assert.assertNotEquals(i, 0);
+//    }
 }

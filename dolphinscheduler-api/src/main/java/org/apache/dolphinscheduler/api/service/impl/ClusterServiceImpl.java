@@ -284,9 +284,9 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
         }
 
         //need update namespace name
-        if (!clusterExist.getName().equals(name)) {
-            k8sNamespaceMapper.updateNamespaceClusterName(clusterExist.getCode(), clusterExist.getName());
-        }
+//        if (!clusterExist.getName().equals(name)) {
+//            k8sNamespaceMapper.updateNamespaceClusterName(clusterExist.getCode(), clusterExist.getName());
+//        }
         //update cluster
         clusterExist.setConfig(config);
         clusterExist.setName(name);

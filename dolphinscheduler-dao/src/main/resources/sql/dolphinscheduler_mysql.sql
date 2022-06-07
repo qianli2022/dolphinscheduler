@@ -1889,6 +1889,7 @@ CREATE TABLE `t_ds_audit_log` (
 DROP TABLE IF EXISTS `t_ds_k8s_namespace`;
 CREATE TABLE `t_ds_k8s_namespace` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` bigint(20) NOT NULL DEFAULT '0',
   `limits_memory` int(11) DEFAULT NULL,
   `namespace` varchar(100) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,

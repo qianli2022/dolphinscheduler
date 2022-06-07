@@ -1888,6 +1888,7 @@ CREATE TABLE t_ds_audit_log (
 DROP TABLE IF EXISTS t_ds_k8s_namespace;
 CREATE TABLE t_ds_k8s_namespace (
    id serial NOT NULL,
+   code       bigint  NOT NULL,
    limits_memory      int DEFAULT NULL ,
    namespace          varchar(100) DEFAULT NULL ,
    user_id            int DEFAULT NULL,

@@ -22,6 +22,7 @@ import org.apache.dolphinscheduler.api.service.K8sNamespaceService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
+import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.dao.entity.Cluster;
 import org.apache.dolphinscheduler.dao.entity.K8sNamespace;
 import org.apache.dolphinscheduler.dao.entity.User;
@@ -154,9 +155,22 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
             return result;
         }
 
+        long code = 0L;
+        try {
+            code = CodeGenerateUtils.getInstance().genCode();
+            cluster.setCode(code);
+        } catch (CodeGenerateUtils.CodeGenerateException e) {
+            logger.error("Cluster code get error, ", e);
+        }
+        if (code == 0L) {
+            putMsg(result, Status.INTERNAL_SERVER_ERROR_ARGS, "Error generating cluster code");
+            return result;
+        }
+
         K8sNamespace k8sNamespaceObj = new K8sNamespace();
         Date now = new Date();
 
+        k8sNamespaceObj.setCode(code);
         k8sNamespaceObj.setNamespace(namespace);
         k8sNamespaceObj.setClusterName(cluster.getName());
         k8sNamespaceObj.setClusterCode(clusterCode);
@@ -436,6 +450,12 @@ public class K8SNamespaceServiceImpl extends BaseServiceImpl implements K8sNames
             }
         }
         return resultList;
+    }
+
+
+    private void setClusterName()
+    {
+
     }
 
 }

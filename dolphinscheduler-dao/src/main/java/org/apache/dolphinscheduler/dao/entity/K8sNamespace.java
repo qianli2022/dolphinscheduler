@@ -33,6 +33,11 @@ public class K8sNamespace {
     private Integer id;
 
     /**
+     * cluster code
+     */
+    private Long code;
+
+    /**
      * namespace name
      */
     @TableField(value = "namespace")
@@ -100,7 +105,7 @@ public class K8sNamespace {
     /**
      * k8s name
      */
-    @TableField("cluster_name")
+    @TableField(exist = false)
     private String clusterName;
 
     public Integer getId() {
@@ -211,14 +216,14 @@ public class K8sNamespace {
     public String toString() {
         return "K8sNamespace{" +
             "id=" + id +
+            "code=" + code +
             ", namespace=" + namespace +
             ", limitsCpu=" + limitsCpu +
             ", limitsMemory=" + limitsMemory +
-            ", userId=" + userId +
             ", podRequestCpu=" + podRequestCpu +
             ", podRequestMemory=" + podRequestMemory +
             ", podReplicas=" + podReplicas +
-            ", k8s=" + clusterName +
+            ", clusterCode=" + clusterCode +
             ", createTime=" + createTime +
             ", updateTime=" + updateTime +
             '}';
@@ -249,4 +254,11 @@ public class K8sNamespace {
         return result;
     }
 
+    public Long getCode() {
+        return code;
+    }
+
+    public void setCode(Long code) {
+        this.code = code;
+    }
 }

@@ -169,7 +169,6 @@ public class ClusterServiceTest {
 
         Mockito.when(clusterMapper.updateById(Mockito.any(Cluster.class))).thenReturn(1);
         Mockito.when(clusterMapper.queryByClusterCode(1L)).thenReturn(getCluster());
-        Mockito.when(k8sNamespaceMapper.updateNamespaceClusterName(Mockito.any(Long.class),Mockito.any(String.class))).thenReturn(1);
         Mockito.when(k8sManager.getAndUpdateK8sClient(1L,true)).thenReturn(null);
 
         result = clusterService.updateClusterByCode(loginUser,1L,"testName",getConfig(),"test");

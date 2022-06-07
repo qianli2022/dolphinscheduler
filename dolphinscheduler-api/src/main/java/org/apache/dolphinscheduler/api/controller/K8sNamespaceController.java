@@ -20,7 +20,7 @@ package org.apache.dolphinscheduler.api.controller;
 import static org.apache.dolphinscheduler.api.enums.Status.CREATE_K8S_NAMESPACE_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.DELETE_K8S_NAMESPACE_BY_ID_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_AUTHORIZED_NAMESPACE_ERROR;
-import static org.apache.dolphinscheduler.api.enums.Status.QUERY_CAN_USE_K8S_CLUSTER_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.QUERY_CAN_USE_K8S_NAMESPACE_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_K8S_NAMESPACE_LIST_PAGING_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_UNAUTHORIZED_NAMESPACE_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_K8S_NAMESPACE_ERROR;
@@ -86,7 +86,7 @@ public class K8sNamespaceController extends BaseController {
     @ResponseStatus(HttpStatus.OK)
     @ApiException(QUERY_K8S_NAMESPACE_LIST_PAGING_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryProjectListPaging(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+    public Result queryNamespaceListPaging(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                          @RequestParam(value = "searchVal", required = false) String searchVal,
                                          @RequestParam("pageSize") Integer pageSize,
                                          @RequestParam("pageNo") Integer pageNo
@@ -260,7 +260,7 @@ public class K8sNamespaceController extends BaseController {
     @ApiOperation(value = "queryAvailableNamespaceList", notes = "QUERY_AVAILABLE_NAMESPACE_LIST_NOTES")
     @GetMapping(value = "/available-list")
     @ResponseStatus(HttpStatus.OK)
-    @ApiException(QUERY_CAN_USE_K8S_CLUSTER_ERROR)
+    @ApiException(QUERY_CAN_USE_K8S_NAMESPACE_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
     public Result queryAvailableNamespaceList(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser) {
         List<K8sNamespace> result = k8sNamespaceService.queryNamespaceAvailable(loginUser);
