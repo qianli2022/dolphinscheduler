@@ -60,6 +60,8 @@ public class K8sManagerTest {
     public void getK8sClient() throws RemotingException {
         Mockito.when(clusterMapper.selectList(Mockito.any())).thenReturn(getClusterList());
 
+        Mockito.when(clusterMapper.queryByClusterCode(1L)).thenReturn(getCluster());
+
         KubernetesClient result = k8sManager.getK8sClient(1L);
         Assertions.assertNull(result);
         result = k8sManager.getK8sClient(null);
@@ -74,6 +76,16 @@ public class K8sManagerTest {
         cluster.setConfig("{\"k8s\":\"k8s config yaml\"}");
         return cluster;
     }
+
+    private Cluster getCluster2() {
+        Cluster cluster = new Cluster();
+        cluster.setId(1);
+        cluster.setCode(1L);
+        cluster.setName("cluster");
+        cluster.setConfig("{\"k8s\":\"k8s config yaml new\"}");
+        return cluster;
+    }
+
 
     private List<Cluster> getClusterList() {
         List<Cluster> clusterList = new ArrayList<>();

@@ -318,17 +318,6 @@ public class ClusterServiceImpl extends BaseServiceImpl implements ClusterServic
             return result;
         }
 
-        if (!Constants.K8S_LOCAL_TEST_CLUSTER_CODE.equals(clusterExist.getCode())
-                && !config.equals(ClusterConfUtils.getK8sConfig(clusterExist.getConfig()))) {
-            try {
-                k8sManager.getAndUpdateK8sClient(code, true);
-            } catch (RemotingException e) {
-                logger.error("Update K8s error.", e);
-                putMsg(result, Status.K8S_CLIENT_OPS_ERROR, name);
-                return result;
-            }
-        }
-
         // update cluster
         clusterExist.setConfig(config);
         clusterExist.setName(name);

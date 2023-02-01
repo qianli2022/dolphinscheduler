@@ -46,6 +46,11 @@ public class K8sManager {
      */
     private static Map<Long, KubernetesClient> clientMap = new Hashtable<>();
 
+    /**
+     * cache old cluster
+     */
+    private static Map<Long, Cluster> clusterMap = new Hashtable<>();
+
     @Autowired
     private ClusterMapper clusterMapper;
 
@@ -56,63 +61,47 @@ public class K8sManager {
      * @return
      */
     public synchronized KubernetesClient getK8sClient(Long clusterCode) throws RemotingException {
+
         if (null == clusterCode) {
             return null;
         }
 
-        return getAndUpdateK8sClient(clusterCode, false);
-    }
-
-    /**
-     * @param clusterCode
-     * @return new client if need updated
-     */
-    public synchronized KubernetesClient getAndUpdateK8sClient(Long clusterCode,
-                                                               boolean update) throws RemotingException {
-        if (null == clusterCode) {
+        Cluster clusterDb = clusterMapper.queryByClusterCode(clusterCode);
+        if (clusterDb == null) {
             return null;
         }
 
-        if (update) {
-            deleteK8sClientInner(clusterCode);
+        String k8sConfigDb = ClusterConfUtils.getK8sConfig(clusterDb.getConfig());
+        String k8sConfigUsed = null;
+        Cluster clusterUsed = clusterMap.getOrDefault(clusterCode, null);
+
+        if(clusterUsed!= null) {
+            k8sConfigUsed = ClusterConfUtils.getK8sConfig(clusterUsed.getConfig());
         }
 
-        if (clientMap.containsKey(clusterCode)) {
-            return clientMap.get(clusterCode);
-        } else {
-            createK8sClientInner(clusterCode);
+        if(k8sConfigUsed == null || !k8sConfigUsed.equals(k8sConfigDb)) {
+            updateCacheMap(clusterDb);
         }
+
         return clientMap.get(clusterCode);
     }
 
-    private void deleteK8sClientInner(Long clusterCode) {
-        if (clusterCode == null) {
-            return;
-        }
-        Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
-        if (cluster == null) {
-            return;
-        }
-        KubernetesClient client = clientMap.get(clusterCode);
-        if (client != null) {
-            client.close();
-        }
-    }
-
-    private void createK8sClientInner(Long clusterCode) throws RemotingException {
-        Cluster cluster = clusterMapper.queryByClusterCode(clusterCode);
-        if (cluster == null) {
-            return;
+    private void updateCacheMap(Cluster clusterDb)  throws RemotingException {
+        KubernetesClient clientUsed = clientMap.get(clusterDb.getCode());
+        if (clientUsed != null) {
+            clientUsed.close();
+            clusterMap.remove(clusterDb.getCode());
         }
 
-        String k8sConfig = ClusterConfUtils.getK8sConfig(cluster.getConfig());
+        String k8sConfig = ClusterConfUtils.getK8sConfig(clusterDb.getConfig());
         if (k8sConfig != null) {
             DefaultKubernetesClient client = null;
             try {
                 client = getClient(k8sConfig);
-                clientMap.put(clusterCode, client);
+                clientMap.put(clusterDb.getCode(), client);
+                clusterMap.put(clusterDb.getCode(),clusterDb);
             } catch (RemotingException e) {
-                logger.error("cluster code ={},fail to get k8s ApiClient:  {}", clusterCode, e.getMessage());
+                logger.error("cluster code ={},fail to get k8s ApiClient:  {}", clusterDb.getCode(), e.getMessage());
                 throw new RemotingException("fail to get k8s ApiClient:" + e.getMessage());
             }
         }
